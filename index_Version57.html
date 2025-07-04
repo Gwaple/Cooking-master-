@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ChefMaster: Animated Cooking App</title>
+  <meta name="viewport" content="width=480, initial-scale=1">
+  <style>
+    html,body { margin:0;padding:0;background:#382a26;}
+    body { font-family: 'Segoe UI', Arial, sans-serif; }
+    #chef-home, #chef-auth { transition: opacity .3s; }
+    #chef-userbar {
+      position:absolute;top:10px;left:10px;z-index:10;display:none;
+      font-size:1.08em;background:rgba(255,255,255,0.94);
+      padding:8px 22px 8px 16px;border-radius:18px;box-shadow:0 1px 8px #ccc;}
+    #chef-userbar button { margin-left:12px;background:#ffeaea;border:1px solid #fdc7c7;border-radius:6px;color:#b22222;cursor:pointer;}
+    #chef-app-canvas {
+      display:block;margin:60px auto 0 auto;background:#fffbe9;box-shadow:0 5px 36px #0007;border-radius:18px;
+    }
+    .chef-btn {
+      background:#fb8c00;color:#fff;font-weight:bold;font-size:1.1em;border:none;
+      border-radius:10px;padding:12px 36px;box-shadow:0 2px 16px #fb8c00aa;cursor:pointer;
+      transition:background .2s;
+    }
+    .chef-btn:hover { background:#ffb300; color:#a64b00;}
+    .chef-input { width:90%;margin-bottom:10px;padding:9px;font-size:1.12em;border-radius:7px;border:1px solid #ccc;}
+  </style>
+</head>
+<body>
+<!-- HOMEPAGE -->
+<div id="chef-home" style="display:flex;position:fixed;z-index:11;left:0;top:0;width:100vw;height:100vh;align-items:center;justify-content:center;background:#382a26;">
+  <div style="background:rgba(255,243,222,0.98);border-radius:26px;padding:38px 36px;min-width:320px;max-width:430px;text-align:center;box-shadow:0 8px 60px #c96c1c;">
+    <canvas id="chef-home-anim" width="320" height="170" style="display:block;margin:auto;margin-bottom:14px;border-radius:16px;"></canvas>
+    <h1 style="color:#fb8c00;font-family:Arial Black,Arial,sans-serif;font-size:2.1em;letter-spacing:2px;margin:0 0 14px 0;text-shadow:0 3px 12px #fffbe9,0 1px 0 #c96c1c;">CHEFMASTER</h1>
+    <div style="color:#533c28;font-size:1.09em;margin-bottom:18px;">
+      <p>Become a master chef!<br>Cook, save progress, and unlock new recipes.</p>
+    </div>
+    <button onclick="chefGoToLogin()" class="chef-btn">Sign In / Register</button>
+    <div style="margin-top:20px;font-size:.98em;color:#b66a00;">By Gwaple</div>
+  </div>
+</div>
+<!-- LOGIN/REGISTER OVERLAY -->
+<div id="chef-auth" style="display:none;position:fixed;z-index:12;left:0;top:0;width:100vw;height:100vh;align-items:center;justify-content:center;background:rgba(56,42,38,0.85);">
+  <div id="chef-login-box" style="background:#fffbe9;border-radius:15px;box-shadow:0 2px 24px #b66a00;padding:30px 28px 22px 28px;min-width:240px;max-width:330px;">
+    <h2 style="margin-top:0;text-align:center;color:#fb8c00;">Sign In</h2>
+    <input id="chef-login-user" class="chef-input" placeholder="Username"><br>
+    <input id="chef-login-pass" type="password" class="chef-input" placeholder="Password"><br>
+    <button onclick="chefLogin()" class="chef-btn" style="width:90%;">Sign In</button>
+    <button onclick="chefShowRegister()" class="chef-btn" style="width:90%;margin-top:6px;background:#fffbe9;color:#fb8c00;border:1px solid #fb8c00;">Register</button>
+    <button onclick="chefGoHome()" class="chef-btn" style="width:90%;margin-top:6px;background:#fff;color:#382a26;border:1px solid #c96c1c;">Home</button>
+    <div id="chef-login-msg" style="min-height:18px;margin-top:10px;color:#ff6060;"></div>
+  </div>
+  <div id="chef-register-box" style="display:none;background:#fffbe9;border-radius:15px;box-shadow:0 2px 24px #b66a00;padding:30px 28px 22px 28px;min-width:240px;max-width:330px;">
+    <h2 style="margin-top:0;text-align:center;color:#fb8c00;">Register</h2>
+    <input id="chef-reg-user" class="chef-input" placeholder="Username"><br>
+    <input id="chef-reg-pass" type="password" class="chef-input" placeholder="Password"><br>
+    <button onclick="chefRegister()" class="chef-btn" style="width:90%;">Register</button>
+    <button onclick="chefShowLogin()" class="chef-btn" style="width:90%;margin-top:6px;background:#fffbe9;color:#fb8c00;border:1px solid #fb8c00;">Back</button>
+    <button onclick="chefGoHome()" class="chef-btn" style="width:90%;margin-top:6px;background:#fff;color:#382a26;border:1px solid #c96c1c;">Home</button>
+    <div id="chef-register-msg" style="min-height:18px;margin-top:10px;color:#8dff6e;"></div>
+  </div>
+</div>
+<!-- USERBAR -->
+<div id="chef-userbar">
+  <span id="chef-userbar-welcome"></span>
+  <button onclick="chefLogout()">Logout</button>
+</div>
+<!-- MAIN APP CANVAS (for cooking game/logic) -->
+<canvas id="chef-app-canvas" width="440" height="600"></canvas>
+<script>
+// --- ANIMATED HOMEPAGE: Chef, flying food, kitchen vibe ---
+function chefAnimHomepage() {
+  const c = document.getElementById('chef-home-anim');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let t = 0, food = [
+    {img:"🥕",x:40,y:110,dx:1.3,dy:0.2,rot:0,dr:0.01},
+    {img:"🥩",x:250,y:120,dx:-1.8,dy:0.5,rot:0,dr:-0.01},
+    {img:"🍳",x:160,y:40,dx:0.5,dy:1.0,rot:0,dr:0.015},
+    {img:"🥦",x:80,y:60,dx:0.9,dy:1.2,rot:0,dr:0.008}
+  ];
+  function drawChef(x,y) {
+    // Chef body
+    ctx.save(); ctx.translate(x,y);
+    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,30,26,36,0,0,2*Math.PI); ctx.fill();
+    // Apron
+    ctx.fillStyle="#fb8c00"; ctx.beginPath(); ctx.ellipse(0,56,20,14,0,0,2*Math.PI); ctx.fill();
+    // Head
+    ctx.beginPath(); ctx.arc(0,0,22,0,2*Math.PI); ctx.fillStyle="#f0c4a2"; ctx.fill();
+    // Smile
+    ctx.beginPath(); ctx.arc(0,7,7,0,Math.PI,false); ctx.strokeStyle="#a44"; ctx.lineWidth=2; ctx.stroke();
+    // Eyes
+    ctx.beginPath(); ctx.arc(-7,-5,3,0,2*Math.PI); ctx.arc(7,-5,3,0,2*Math.PI); ctx.fillStyle="#333"; ctx.fill();
+    // Hat base
+    ctx.beginPath(); ctx.ellipse(0,-16,19,8,0,0,2*Math.PI); ctx.fillStyle="#fff"; ctx.fill();
+    // Hat top
+    ctx.beginPath(); ctx.ellipse(0,-28,15+Math.sin(t/21)*2,13,0,0,2*Math.PI); ctx.fill();
+    ctx.restore();
+  }
+  function draw() {
+    ctx.clearRect(0,0,320,170);
+    ctx.fillStyle="#fffbe9"; ctx.fillRect(0,0,320,170);
+    // Kitchen table
+    ctx.fillStyle="#f0c4a2"; ctx.fillRect(0,130,320,40);
+    ctx.save(); ctx.shadowColor="#fb8c00"; ctx.shadowBlur=16; drawChef(80,100); ctx.restore();
+    // Flying food
+    for(let f of food) {
+      ctx.save();
+      ctx.translate(f.x,f.y);
+      ctx.rotate(f.rot);
+      ctx.font="2em serif"; ctx.globalAlpha=0.93;
+      ctx.fillText(f.img,0,0);
+      ctx.restore();
+      f.x += f.dx; f.y += f.dy; f.rot += f.dr;
+      if (f.x<20||f.x>300){f.dx*=-1;}
+      if (f.y<20||f.y>150){f.dy*=-1;}
+    }
+    ctx.font="bold 1.5em Arial";
+    ctx.fillStyle="#fb8c00";
+    ctx.fillText("Let's Cook!",190,60+Math.sin(t/12)*7);
+    t++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// --- LOGIN/REGISTER/USER SYSTEM (with progress per user) ---
+let chefCurrentUser = "";
+function chefUserKey(u){return 'chef-user-'+u;}
+function chefProgressKey(u){return 'chef-progress-'+u;}
+function chefSaveUser(u,p){localStorage.setItem(chefUserKey(u),JSON.stringify({password:p}));}
+function chefGetUser(u){try{return JSON.parse(localStorage.getItem(chefUserKey(u)));}catch(e){return null;}}
+function chefSetMsg(id,msg,ok){let el=document.getElementById(id);el.textContent=msg;el.style.color=ok?"#86ffae":"#ff6060";}
+function chefLogin(){
+  let u=document.getElementById('chef-login-user').value.trim(),p=document.getElementById('chef-login-pass').value;
+  let user=chefGetUser(u);
+  if(!u||!p)return chefSetMsg('chef-login-msg',"Enter username & password.");
+  if(!user)return chefSetMsg('chef-login-msg',"User not found.");
+  if(user.password!==p)return chefSetMsg('chef-login-msg',"Wrong password.");
+  chefCurrentUser=u;
+  document.getElementById('chef-auth').style.display="none";
+  document.getElementById('chef-userbar-welcome').textContent="Hello, "+u+"!";
+  document.getElementById('chef-userbar').style.display="";
+  chefLoadProgress();
+  chefOnLogin && chefOnLogin();
+}
+function chefRegister(){
+  let u=document.getElementById('chef-reg-user').value.trim(),p=document.getElementById('chef-reg-pass').value;
+  if(!u||!p)return chefSetMsg('chef-register-msg',"Enter username & password.",false);
+  if(chefGetUser(u))return chefSetMsg('chef-register-msg',"User already exists.",false);
+  chefSaveUser(u,p);chefSetMsg('chef-register-msg',"Registered! You can sign in now.",true);
+}
+function chefShowLogin(){
+  document.getElementById('chef-login-box').style.display="";
+  document.getElementById('chef-register-box').style.display="none";
+  chefSetMsg('chef-login-msg',"",true);chefSetMsg('chef-register-msg',"",true);
+}
+function chefShowRegister(){
+  document.getElementById('chef-login-box').style.display="none";
+  document.getElementById('chef-register-box').style.display="";
+  chefSetMsg('chef-login-msg',"",true);chefSetMsg('chef-register-msg',"",true);
+}
+function chefLogout(){
+  chefCurrentUser="";document.getElementById('chef-userbar').style.display="none";
+  document.getElementById('chef-auth').style.display="flex";chefShowLogin();chefOnLogout&&chefOnLogout();
+}
+function chefGoHome(){
+  document.getElementById('chef-home').style.display="";
+  document.getElementById('chef-auth').style.display="none";
+  document.getElementById('chef-userbar').style.display="none";
+  chefOnLogout&&chefOnLogout();
+}
+function chefGoToLogin(){
+  document.getElementById('chef-home').style.display="none";
+  document.getElementById('chef-auth').style.display="flex";
+  chefShowLogin();
+}
+// --- PROGRESS SYSTEM (per user, example: last recipe unlocked) ---
+let chefProgress = {level:1}; // placeholder for user progress
+function chefSaveProgress(){if(chefCurrentUser)localStorage.setItem(chefProgressKey(chefCurrentUser),JSON.stringify(chefProgress));}
+function chefLoadProgress(){
+  if(chefCurrentUser){
+    let p=localStorage.getItem(chefProgressKey(chefCurrentUser));
+    chefProgress=p?JSON.parse(p):{level:1};
+  }
+}
+
+// --- INIT HOMEPAGE ---
+window.addEventListener('DOMContentLoaded',function(){
+  chefAnimHomepage();
+  chefGoHome();
+});
+
+// --- INTEGRATION HOOKS ---
+window.chefOnLogin = function() {
+  chefDrawMainApp();
+};
+window.chefOnLogout = function() {
+  chefClearMainApp();
+};
+
+// --- APP MAIN CANVAS: DEMO "COOKING" ANIMATION ---
+// This is a placeholder: replace with your actual cooking game logic!
+function chefDrawMainApp() {
+  let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
+  let t=0, bar=0, cooking=false, done=false;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // Kitchen BG
+    ctx.fillStyle="#f7e4c0"; ctx.fillRect(0,0,440,600);
+    ctx.fillStyle="#e2952a"; ctx.fillRect(0,420,440,180);
+    // Chef
+    ctx.save();ctx.translate(220,440);
+    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,30,36,50,0,0,2*Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,0,36,0,2*Math.PI); ctx.fillStyle="#f0c4a2"; ctx.fill();
+    ctx.beginPath(); ctx.arc(-14,-10,6,0,2*Math.PI); ctx.arc(14,-10,6,0,2*Math.PI); ctx.fillStyle="#fff"; ctx.fill();
+    ctx.beginPath(); ctx.arc(-14,-10,2.8,0,2*Math.PI); ctx.arc(14,-10,2.8,0,2*Math.PI); ctx.fillStyle="#333"; ctx.fill();
+    ctx.beginPath(); ctx.arc(0,10,16,0,Math.PI,false); ctx.strokeStyle="#a44"; ctx.lineWidth=3; ctx.stroke();
+    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,-26,30+Math.sin(t/15)*2,14,0,0,2*Math.PI); ctx.fill();
+    ctx.restore();
+    // Pan
+    ctx.save(); ctx.translate(220,520); ctx.rotate(Math.sin(t/11)*0.07+0.09);
+    ctx.fillStyle="#888"; ctx.beginPath(); ctx.ellipse(0,0,56,18,0,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle="#333"; ctx.beginPath(); ctx.ellipse(0,0,46,12,0,0,2*Math.PI); ctx.fill();
+    ctx.restore();
+    // Food anim
+    if(cooking){
+      ctx.save();ctx.translate(220,520);
+      for(let i=0;i<3;i++){
+        let tx=Math.sin(t/7+i)*18,ty=Math.cos(t/6+i)*6-4;
+        ctx.font="2em serif";
+        ctx.globalAlpha=0.96-0.2*i;
+        ctx.fillText(["🥕","🥩","🥦"][i],tx,ty);
+      }
+      ctx.restore();
+    }
+    // Progress bar
+    ctx.fillStyle="#ffe9bb"; ctx.fillRect(60,390,320,20);
+    ctx.fillStyle="#fb8c00"; ctx.fillRect(60,390,320*(bar/100),20);
+    ctx.strokeStyle="#c96c1c"; ctx.strokeRect(60,390,320,20);
+    ctx.font="1.2em Arial"; ctx.fillStyle="#c96c1c";
+    ctx.fillText(done?"Dish is ready!":"Cooking... "+Math.round(bar)+"%",160,408);
+    // Buttons
+    ctx.font="1.1em Arial"; ctx.fillStyle="#fb8c00";
+    ctx.fillText("Press SPACE to cook, ESC to logout",90,56);
+    t++;
+    if(cooking && bar<100){bar+=0.65;}
+    if(bar>=100){cooking=false;done=true;chefProgress.level++;chefSaveProgress();}
+    requestAnimationFrame(draw);
+  }
+  draw();
+  // Controls
+  document.onkeydown=function(e){
+    if(e.key===" " && !cooking && !done){cooking=true;}
+    if(e.key==="Escape"){chefLogout();}
+    if(e.key===" " && done){bar=0;done=false;cooking=false;}
+  }
+}
+
+function chefClearMainApp() {
+  let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  document.onkeydown=null;
+}
+</script>
+</body>
+</html>
