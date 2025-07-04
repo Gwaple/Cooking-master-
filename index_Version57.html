@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ChefMaster: Animated Cooking App</title>
-  <meta name="viewport" content="width=480, initial-scale=1">
+  <title>ChefMaster: Next-Gen Cooking Game</title>
+  <meta name="viewport" content="width=500, initial-scale=1">
   <style>
-    html,body { margin:0;padding:0;background:#382a26;}
+    html,body { margin:0;padding:0;background:#352a26;}
     body { font-family: 'Segoe UI', Arial, sans-serif; }
     #chef-home, #chef-auth { transition: opacity .3s; }
     #chef-userbar {
@@ -23,16 +23,21 @@
     }
     .chef-btn:hover { background:#ffb300; color:#a64b00;}
     .chef-input { width:90%;margin-bottom:10px;padding:9px;font-size:1.12em;border-radius:7px;border:1px solid #ccc;}
+    #chef-app-sidequests {
+      position:absolute;top:90px;right:5vw;width:170px;background:rgba(255,255,255,0.95);
+      border-radius:14px; box-shadow:0 2px 18px #c96c1c3b; padding:14px 12px; display:none;
+      font-size:1.1em; color:#a64b00;
+    }
   </style>
 </head>
 <body>
 <!-- HOMEPAGE -->
-<div id="chef-home" style="display:flex;position:fixed;z-index:11;left:0;top:0;width:100vw;height:100vh;align-items:center;justify-content:center;background:#382a26;">
+<div id="chef-home" style="display:flex;position:fixed;z-index:11;left:0;top:0;width:100vw;height:100vh;align-items:center;justify-content:center;background:#352a26;">
   <div style="background:rgba(255,243,222,0.98);border-radius:26px;padding:38px 36px;min-width:320px;max-width:430px;text-align:center;box-shadow:0 8px 60px #c96c1c;">
     <canvas id="chef-home-anim" width="320" height="170" style="display:block;margin:auto;margin-bottom:14px;border-radius:16px;"></canvas>
     <h1 style="color:#fb8c00;font-family:Arial Black,Arial,sans-serif;font-size:2.1em;letter-spacing:2px;margin:0 0 14px 0;text-shadow:0 3px 12px #fffbe9,0 1px 0 #c96c1c;">CHEFMASTER</h1>
     <div style="color:#533c28;font-size:1.09em;margin-bottom:18px;">
-      <p>Become a master chef!<br>Cook, save progress, and unlock new recipes.</p>
+      <p>Master chef challenge!<br>Unlock recipes, conquer side quests,<br>and become a culinary legend.</p>
     </div>
     <button onclick="chefGoToLogin()" class="chef-btn">Sign In / Register</button>
     <div style="margin-top:20px;font-size:.98em;color:#b66a00;">By Gwaple</div>
@@ -64,25 +69,32 @@
   <span id="chef-userbar-welcome"></span>
   <button onclick="chefLogout()">Logout</button>
 </div>
-<!-- MAIN APP CANVAS (for cooking game/logic) -->
-<canvas id="chef-app-canvas" width="440" height="600"></canvas>
+<!-- SIDE QUESTS -->
+<div id="chef-app-sidequests"></div>
+<!-- MAIN APP CANVAS -->
+<canvas id="chef-app-canvas" width="480" height="680"></canvas>
 <script>
-// --- ANIMATED HOMEPAGE: Chef, flying food, kitchen vibe ---
+// --- High-effort animated homepage: Chef, flying food, kitchen vibe, more ---
 function chefAnimHomepage() {
   const c = document.getElementById('chef-home-anim');
   if (!c) return;
   const ctx = c.getContext('2d');
   let t = 0, food = [
-    {img:"🥕",x:40,y:110,dx:1.3,dy:0.2,rot:0,dr:0.01},
-    {img:"🥩",x:250,y:120,dx:-1.8,dy:0.5,rot:0,dr:-0.01},
-    {img:"🍳",x:160,y:40,dx:0.5,dy:1.0,rot:0,dr:0.015},
-    {img:"🥦",x:80,y:60,dx:0.9,dy:1.2,rot:0,dr:0.008}
+    {img:"🥕",x:40,y:110,dx:1.5,dy:0.5,rot:0,dr:0.01},
+    {img:"🥩",x:250,y:120,dx:-2.1,dy:0.6,rot:0,dr:-0.012},
+    {img:"🍳",x:160,y:40,dx:0.8,dy:1.2,rot:0,dr:0.019},
+    {img:"🥦",x:80,y:60,dx:1.2,dy:1.3,rot:0,dr:0.01},
+    {img:"🧀",x:90,y:150,dx:1.1,dy:-0.7,rot:0,dr:0.009}
   ];
+  let bubbles = Array.from({length:16},()=>({x:Math.random()*320,y:170+Math.random()*40,dy:-0.7-Math.random()*0.2,r:4+Math.random()*7,alpha:Math.random()*0.6+0.3}));
   function drawChef(x,y) {
-    // Chef body
     ctx.save(); ctx.translate(x,y);
+    // Shadow
+    ctx.globalAlpha=0.13;
+    ctx.beginPath(); ctx.ellipse(0,56,30,7,0,0,2*Math.PI); ctx.fillStyle="#000"; ctx.fill();
+    ctx.globalAlpha=1;
+    // Apron/body
     ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,30,26,36,0,0,2*Math.PI); ctx.fill();
-    // Apron
     ctx.fillStyle="#fb8c00"; ctx.beginPath(); ctx.ellipse(0,56,20,14,0,0,2*Math.PI); ctx.fill();
     // Head
     ctx.beginPath(); ctx.arc(0,0,22,0,2*Math.PI); ctx.fillStyle="#f0c4a2"; ctx.fill();
@@ -99,14 +111,20 @@ function chefAnimHomepage() {
   function draw() {
     ctx.clearRect(0,0,320,170);
     ctx.fillStyle="#fffbe9"; ctx.fillRect(0,0,320,170);
-    // Kitchen table
+    // Table
     ctx.fillStyle="#f0c4a2"; ctx.fillRect(0,130,320,40);
-    ctx.save(); ctx.shadowColor="#fb8c00"; ctx.shadowBlur=16; drawChef(80,100); ctx.restore();
+    // Bubbles (side quest hint)
+    for(let bub of bubbles){
+      ctx.save(); ctx.globalAlpha=bub.alpha;
+      ctx.beginPath(); ctx.arc(bub.x,bub.y,bub.r,0,2*Math.PI); ctx.fillStyle="#fb8c00"; ctx.fill();
+      ctx.restore();
+      bub.y += bub.dy; if(bub.y<120){bub.y=170+Math.random()*40;}
+    }
+    drawChef(80,100);
     // Flying food
     for(let f of food) {
       ctx.save();
-      ctx.translate(f.x,f.y);
-      ctx.rotate(f.rot);
+      ctx.translate(f.x,f.y); ctx.rotate(f.rot);
       ctx.font="2em serif"; ctx.globalAlpha=0.93;
       ctx.fillText(f.img,0,0);
       ctx.restore();
@@ -123,7 +141,7 @@ function chefAnimHomepage() {
   draw();
 }
 
-// --- LOGIN/REGISTER/USER SYSTEM (with progress per user) ---
+// --- LOGIN/REGISTER/USER SYSTEM (with progress/recipes/sidequests per user) ---
 let chefCurrentUser = "";
 function chefUserKey(u){return 'chef-user-'+u;}
 function chefProgressKey(u){return 'chef-progress-'+u;}
@@ -174,15 +192,44 @@ function chefGoToLogin(){
   document.getElementById('chef-auth').style.display="flex";
   chefShowLogin();
 }
-// --- PROGRESS SYSTEM (per user, example: last recipe unlocked) ---
-let chefProgress = {level:1}; // placeholder for user progress
+
+// --- PROGRESS SYSTEM (per user, recipes, side quests) ---
+let chefProgress = {recipe:1, unlocked:[0], sidequests:[], completed:[]};
 function chefSaveProgress(){if(chefCurrentUser)localStorage.setItem(chefProgressKey(chefCurrentUser),JSON.stringify(chefProgress));}
 function chefLoadProgress(){
   if(chefCurrentUser){
     let p=localStorage.getItem(chefProgressKey(chefCurrentUser));
-    chefProgress=p?JSON.parse(p):{level:1};
+    chefProgress=p?JSON.parse(p):{recipe:1,unlocked:[0],sidequests:[],completed:[]};
   }
 }
+
+// --- RECIPES & SIDE QUESTS (Easy to expand) ---
+const chefRecipes = [
+  {name:"Veggie Omelette",emoji:["🍳","🥦","🥕"],steps:[
+    {desc:"Crack eggs", type:"crack", n:2, anim:"egg"},
+    {desc:"Chop carrot", type:"chop", n:3, anim:"carrot"},
+    {desc:"Stir in pan", type:"stir", n:8, anim:"pan"},
+    {desc:"Flip omelette", type:"flip", n:1, anim:"flip"}
+  ]},
+  {name:"Beef Burger",emoji:["🍔","🥩","🧀"],steps:[
+    {desc:"Chop beef", type:"chop", n:4, anim:"beef"},
+    {desc:"Shape patties", type:"shape", n:3, anim:"patty"},
+    {desc:"Grill patties", type:"grill", n:5, anim:"grill"},
+    {desc:"Assemble burger", type:"stack", n:1, anim:"burger"}
+  ]},
+  {name:"Pizza Margherita",emoji:["🍕","🧀","🍅"],steps:[
+    {desc:"Knead dough", type:"knead", n:8, anim:"dough"},
+    {desc:"Spread sauce", type:"spread", n:3, anim:"sauce"},
+    {desc:"Sprinkle cheese", type:"sprinkle", n:5, anim:"cheese"},
+    {desc:"Bake pizza", type:"bake", n:1, anim:"oven"}
+  ]}
+];
+// Example sidequests (easy to expand)
+const chefSideQuests = [
+  {id:1,desc:"Cook 3 omelettes in a row!",req:{recipe:0, count:3}},
+  {id:2,desc:"Finish a burger without dropping!",req:{recipe:1, noMistake:true}},
+  {id:3,desc:"Unlock all recipes",req:{unlockAll:true}}
+];
 
 // --- INIT HOMEPAGE ---
 window.addEventListener('DOMContentLoaded',function(){
@@ -198,69 +245,79 @@ window.chefOnLogout = function() {
   chefClearMainApp();
 };
 
-// --- APP MAIN CANVAS: DEMO "COOKING" ANIMATION ---
-// This is a placeholder: replace with your actual cooking game logic!
-function chefDrawMainApp() {
-  let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
-  let t=0, bar=0, cooking=false, done=false;
-  function draw(){
-    ctx.clearRect(0,0,c.width,c.height);
-    // Kitchen BG
-    ctx.fillStyle="#f7e4c0"; ctx.fillRect(0,0,440,600);
-    ctx.fillStyle="#e2952a"; ctx.fillRect(0,420,440,180);
-    // Chef
-    ctx.save();ctx.translate(220,440);
-    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,30,36,50,0,0,2*Math.PI); ctx.fill();
-    ctx.beginPath(); ctx.arc(0,0,36,0,2*Math.PI); ctx.fillStyle="#f0c4a2"; ctx.fill();
-    ctx.beginPath(); ctx.arc(-14,-10,6,0,2*Math.PI); ctx.arc(14,-10,6,0,2*Math.PI); ctx.fillStyle="#fff"; ctx.fill();
-    ctx.beginPath(); ctx.arc(-14,-10,2.8,0,2*Math.PI); ctx.arc(14,-10,2.8,0,2*Math.PI); ctx.fillStyle="#333"; ctx.fill();
-    ctx.beginPath(); ctx.arc(0,10,16,0,Math.PI,false); ctx.strokeStyle="#a44"; ctx.lineWidth=3; ctx.stroke();
-    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,-26,30+Math.sin(t/15)*2,14,0,0,2*Math.PI); ctx.fill();
-    ctx.restore();
-    // Pan
-    ctx.save(); ctx.translate(220,520); ctx.rotate(Math.sin(t/11)*0.07+0.09);
-    ctx.fillStyle="#888"; ctx.beginPath(); ctx.ellipse(0,0,56,18,0,0,2*Math.PI); ctx.fill();
-    ctx.fillStyle="#333"; ctx.beginPath(); ctx.ellipse(0,0,46,12,0,0,2*Math.PI); ctx.fill();
-    ctx.restore();
-    // Food anim
-    if(cooking){
-      ctx.save();ctx.translate(220,520);
-      for(let i=0;i<3;i++){
-        let tx=Math.sin(t/7+i)*18,ty=Math.cos(t/6+i)*6-4;
-        ctx.font="2em serif";
-        ctx.globalAlpha=0.96-0.2*i;
-        ctx.fillText(["🥕","🥩","🥦"][i],tx,ty);
-      }
-      ctx.restore();
-    }
-    // Progress bar
-    ctx.fillStyle="#ffe9bb"; ctx.fillRect(60,390,320,20);
-    ctx.fillStyle="#fb8c00"; ctx.fillRect(60,390,320*(bar/100),20);
-    ctx.strokeStyle="#c96c1c"; ctx.strokeRect(60,390,320,20);
-    ctx.font="1.2em Arial"; ctx.fillStyle="#c96c1c";
-    ctx.fillText(done?"Dish is ready!":"Cooking... "+Math.round(bar)+"%",160,408);
-    // Buttons
-    ctx.font="1.1em Arial"; ctx.fillStyle="#fb8c00";
-    ctx.fillText("Press SPACE to cook, ESC to logout",90,56);
-    t++;
-    if(cooking && bar<100){bar+=0.65;}
-    if(bar>=100){cooking=false;done=true;chefProgress.level++;chefSaveProgress();}
-    requestAnimationFrame(draw);
+// --- SIDEQUESTS UI ---
+function chefDrawSideQuests() {
+  let el=document.getElementById('chef-app-sidequests');
+  el.style.display="block";
+  let html = `<b>Side Quests</b><ul style="margin:6px 0 0 0;padding-left:18px;">`;
+  for(let q of chefSideQuests) {
+    let done = chefProgress.completed.includes(q.id);
+    html += `<li style="color:${done?'#22a22a':'#a64b00'};">${done?"✓ ":""}${q.desc}</li>`;
   }
-  draw();
-  // Controls
-  document.onkeydown=function(e){
-    if(e.key===" " && !cooking && !done){cooking=true;}
-    if(e.key==="Escape"){chefLogout();}
-    if(e.key===" " && done){bar=0;done=false;cooking=false;}
-  }
+  html+="</ul>";
+  el.innerHTML = html;
 }
 
-function chefClearMainApp() {
+// --- MAIN GAME CANVAS/UI/ANIM CONTROLLER (MULTI-RECIPE, MINI-GAMES, SIDEQUESTS) ---
+let chefGameState = { mode:"menu", recipe:0, step:0, progress:0, mistakes:0, repeatCount:0};
+function chefDrawMainApp() {
   let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
-  ctx.clearRect(0,0,c.width,c.height);
-  document.onkeydown=null;
-}
-</script>
-</body>
-</html>
+  chefDrawSideQuests();
+  chefGameState = {mode:"menu",recipe:0,step:0,progress:0,mistakes:0,repeatCount:0};
+  function menu() {
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.font="bold 2em Arial"; ctx.fillStyle="#fb8c00";
+    ctx.fillText("Choose a Recipe!",90,60);
+    chefRecipes.forEach((r,i)=>{
+      let unlocked = chefProgress.unlocked.includes(i);
+      ctx.globalAlpha = unlocked?1:0.35;
+      ctx.fillStyle = unlocked?"#fb8c00":"#bbb";
+      ctx.fillRect(60,120+90*i,360,70);
+      ctx.globalAlpha = 1;
+      ctx.font="1.6em Arial"; ctx.fillStyle="#a64b00";
+      ctx.fillText(r.emoji.join(" ")+"  "+r.name, 90, 170+90*i);
+      if(!unlocked) {
+        ctx.font="1em Arial"; ctx.fillStyle="#c96c1c";
+        ctx.fillText("Locked! Finish earlier recipes.", 120, 200+90*i);
+      }
+    });
+    ctx.font="1em Arial"; ctx.fillStyle="#533c28";
+    ctx.fillText("Progress: "+(chefProgress.unlocked.length)+"/"+chefRecipes.length+" recipes unlocked",95,400);
+  }
+  function startRecipe(i) {
+    chefGameState={mode:"cook",recipe:i,step:0,progress:0,mistakes:0,repeatCount:0};
+    chefDrawCookStep();
+  }
+  function menuClick(e) {
+    let rect = c.getBoundingClientRect(), mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    chefRecipes.forEach((r,i)=>{
+      let y=120+90*i;
+      if(mx>60&&mx<420&&my>y&&my<y+70 && chefProgress.unlocked.includes(i)) {
+        c.removeEventListener("mousedown",menuClick);
+        startRecipe(i);
+      }
+    });
+  }
+  function unlockNextRecipe(){
+    let next = chefGameState.recipe+1;
+    if(next<chefRecipes.length && !chefProgress.unlocked.includes(next)) {
+      chefProgress.unlocked.push(next); chefSaveProgress();
+    }
+  }
+  function completeSideQuests(){
+    for(let sq of chefSideQuests){
+      if(chefProgress.completed.includes(sq.id)) continue;
+      if(sq.req.recipe!==undefined){
+        if(sq.req.recipe===chefGameState.recipe && chefGameState.repeatCount>=sq.req.count){chefProgress.completed.push(sq.id);}
+        if(sq.req.recipe===chefGameState.recipe && sq.req.noMistake && chefGameState.mistakes===0){chefProgress.completed.push(sq.id);}
+      }
+      if(sq.req.unlockAll && chefProgress.unlocked.length===chefRecipes.length){chefProgress.completed.push(sq.id);}
+    }
+    chefSaveProgress();
+    chefDrawSideQuests();
+  }
+  function chefDrawCookStep() {
+    let g=chefGameState, r=chefRecipes[g.recipe], s=r.steps[g.step];
+    ctx.clearRect(0,0,c.width,c.height);
+    // BG
+    ctx.fillStyle="#fffbe9"; ctx
