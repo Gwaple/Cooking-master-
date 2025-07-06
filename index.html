@@ -565,5 +565,114 @@ function chefStartMinigame(){
     ctx.beginPath(); ctx.ellipse(0,-10,85,30,0,0,2*Math.PI); ctx.fillStyle="#e0c843"; ctx.fill();
     ctx.restore();
     // Soup swirls
-    for(let
-
+    for(let i=0;i<mini.score;i++){
+      ctx.save(); ctx.translate(600,420); ctx.rotate(i*0.9);
+      ctx.strokeStyle="#f7b72a"; ctx.lineWidth=6;
+      ctx.beginPath(); ctx.arc(-20+12*i,0,12+2*i,0,Math.PI*1.2); ctx.stroke();
+      ctx.restore();
+    }
+    // Ladle
+    ctx.save(); ctx.translate(700,370); ctx.rotate(Math.sin(mini.score*0.6)*0.6);
+    ctx.fillStyle="#9e847f"; ctx.fillRect(-50,-8,80,14);
+    ctx.beginPath(); ctx.arc(35,0,15,0,2*Math.PI); ctx.fillStyle="#b8c3c6"; ctx.fill();
+    ctx.restore();
+  }
+  function startTapGame(){
+    mini.score = 0;
+    showMsg("Tap/click to stir!");
+    drawTapGame();
+    function tap(e){
+      let rect = c.getBoundingClientRect();
+      let x = (e.touches?e.touches[0].clientX:e.clientX)-rect.left;
+      let y = (e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+      if((x-600)*(x-600)/110/110 + (y-430)*(y-430)/60/60 < 1.03){
+        mini.score++;
+        drawTapGame();
+        if(mini.score>=6){
+          showMsg("Soup stirred! Tap/click to finish.");
+          c.removeEventListener('click',tap);
+          c.removeEventListener('touchstart',tap);
+          c.onclick = function(){endMinigame();};
+        }
+      }
+    }
+    c.addEventListener('click',tap);
+    c.addEventListener('touchstart',tap);
+  }
+  // End: award coins/xp, show result
+  function endMinigame(){
+    hideMsg();
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.font="2.3em Arial"; ctx.fillStyle="#32c832";
+    ctx.fillText("Dish Complete! +20 Coins +15 XP",370,300);
+    ctx.font="1.5em Arial"; ctx.fillStyle="#fb8c00";
+    ctx.fillText("Play again or change recipe for more fun!",370,350);
+    chefProgress.currency+=20;
+    chefProgress.xp+=15;
+    chefProgress.level=1+Math.floor(chefProgress.xp/100);
+    chefSaveProgress();
+    chefShowXP();
+    setTimeout(chefDrawMainApp,1800);
+  }
+  startSliceGame();
+}
+/* --- MULTIPLAYER (local hotseat demo) --- */
+function chefShowMultiplayer(){
+  document.getElementById('multiplayer-panel').style.display="flex";
+}
+function chefHideMultiplayer(){
+  document.getElementById('multiplayer-panel').style.display="none";
+}
+function chefStartMultiplayer(){
+  let p2 = document.getElementById('mp-player2').value.trim();
+  if(!p2||!chefGetUser(p2)){alert("Player not found!");return;}
+  chefHideMultiplayer();
+  chefStartMultiplayerGame(p2);
+}
+function chefStartMultiplayerGame(p2){
+  let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  let turn = 0, scores = [0,0];
+  function playTurn(playerIdx){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.font="2.5em Arial"; ctx.fillStyle="#fb8c00";
+    ctx.fillText(`Player: ${playerIdx==0?chefCurrentUser:p2} - Tap when ready!`,320,120);
+    ctx.font="1.3em Arial"; ctx.fillStyle="#444";
+    ctx.fillText("When a tomato appears, tap/click as FAST as you can!",320,190);
+    let delay = 1200+Math.random()*1800;
+    setTimeout(function(){
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.font="4em serif"; ctx.fillText("🍅",540,320);
+      let t0 = Date.now();
+      function tap(){
+        let t1 = Date.now();
+        let ms = t1-t0;
+        ctx.font="2em Arial"; ctx.fillStyle="#1a8e1a";
+        ctx.fillText(`Reaction: ${ms}ms`,480,440);
+        scores[playerIdx]=ms;
+        c.removeEventListener('click',tap);
+        setTimeout(()=>{
+          if(turn==0){turn=1;playTurn(1);}
+          else{showWinner();}
+        },900);
+      }
+      c.addEventListener('click',tap);
+    },delay);
+  }
+  function showWinner(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.font="2.6em Arial"; ctx.fillStyle="#fb8c00";
+    let msg;
+    if(scores[0]<scores[1]) msg=`${chefCurrentUser} wins!`;
+    else if(scores[1]<scores[0]) msg=`${p2} wins!`;
+    else msg="It's a tie!";
+    ctx.fillText(msg,420,320);
+    ctx.font="1.5em Arial"; ctx.fillStyle="#222";
+    ctx.fillText(`${chefCurrentUser}: ${scores[0]}ms   ${p2}: ${scores[1]}ms`,360,390);
+    setTimeout(chefDrawMainApp,1800);
+  }
+  playTurn(0);
+}
+</script>
+</body>
+</html>
