@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ChefMaster: Cuisines & Battles</title>
-  <meta name="viewport" content="width=560, initial-scale=1">
+  <title>ChefMaster: World Kitchen</title>
+  <meta name="viewport" content="width=700, initial-scale=1">
   <style>
     html,body { margin:0;padding:0;background:#382a26;}
     body { font-family: 'Segoe UI', Arial, sans-serif; }
@@ -28,24 +28,18 @@
     #chef-sidequests {
       position:absolute;top:20px;right:30px;z-index:10;
       background:rgba(255,250,220,0.98);border-radius:12px;padding:13px 22px;font-size:1.05em;
-      box-shadow:0 2px 20px #fb8c00a0;min-width:170px;max-width:260px;
+      box-shadow:0 2px 20px #fb8c00a0;min-width:200px;max-width:300px;
       color:#7f4b00;
       display:none;
     }
     #chef-sidequests h3 {margin:0 0 8px 0;font-size:1.13em;color:#fb8c00;}
     #chef-sidequests ul {margin:0 0 0 12px;padding:0;}
     #chef-sidequests li {margin-bottom:6px;}
-    #chef-battle-banner {
-      display:none;position:absolute;left:0;top:0;width:100vw;height:100vh;z-index:20;
-      background:rgba(0,0,0,0.70);align-items:center;justify-content:center;
-      text-align:center;font-size:2em; color:#fff; font-weight:bold;
-      pointer-events:none;
-    }
     #chef-cuisine-select {
       display:none;position:fixed;z-index:15;left:0;top:0;width:100vw;height:100vh;align-items:center;justify-content:center;background:rgba(56,42,38,0.85);
     }
     #chef-cuisine-box {
-      background:#fffbe9;border-radius:24px;box-shadow:0 3px 36px #fb8c00;padding:36px 36px 22px 36px;min-width:320px;max-width:440px;
+      background:#fffbe9;border-radius:24px;box-shadow:0 3px 36px #fb8c00;padding:36px 36px 22px 36px;min-width:320px;max-width:600px;
       text-align:center;
     }
     .cuisine-btn {
@@ -58,11 +52,11 @@
 <body>
 <!-- HOMEPAGE -->
 <div id="chef-home" style="display:flex;position:fixed;z-index:11;left:0;top:0;width:100vw;height:100vh;align-items:center;justify-content:center;background:#382a26;">
-  <div style="background:rgba(255,243,222,0.98);border-radius:26px;padding:38px 36px;min-width:340px;max-width:470px;text-align:center;box-shadow:0 8px 60px #c96c1c;">
-    <canvas id="chef-home-anim" width="340" height="170" style="display:block;margin:auto;margin-bottom:14px;border-radius:16px;"></canvas>
-    <h1 style="color:#fb8c00;font-family:Arial Black,Arial,sans-serif;font-size:2.1em;letter-spacing:2px;margin:0 0 14px 0;text-shadow:0 3px 12px #fffbe9,0 1px 0 #c96c1c;">CHEFMASTER</h1>
-    <div style="color:#533c28;font-size:1.09em;margin-bottom:18px;">
-      <p>Choose your cuisine, level up, and battle chefs!<br>Save your cooking journey!</p>
+  <div style="background:rgba(255,243,222,0.98);border-radius:26px;padding:38px 36px;min-width:480px;max-width:700px;text-align:center;box-shadow:0 8px 60px #c96c1c;">
+    <canvas id="chef-home-anim" width="600" height="230" style="display:block;margin:auto;margin-bottom:14px;border-radius:16px;"></canvas>
+    <h1 style="color:#fb8c00;font-family:Arial Black,Arial,sans-serif;font-size:2.1em;letter-spacing:2px;margin:0 0 14px 0;text-shadow:0 3px 12px #fffbe9,0 1px 0 #c96c1c;">CHEFMASTER WORLD KITCHEN</h1>
+    <div style="color:#533c28;font-size:1.11em;margin-bottom:18px;">
+      <p>Pick your cuisine, complete side quests, compete for high scores!<br>More avatars, more recipes, more kitchen action.</p>
     </div>
     <button onclick="chefGoToLogin()" class="chef-btn">Sign In / Register</button>
     <div style="margin-top:20px;font-size:.98em;color:#b66a00;">By Gwaple</div>
@@ -92,7 +86,7 @@
 <!-- CUISINE SELECT -->
 <div id="chef-cuisine-select">
   <div id="chef-cuisine-box">
-    <h2 style="color:#fb8c00;">Choose Cuisine</h2>
+    <h2 style="color:#fb8c00;">Choose a Cuisine</h2>
     <div id="cuisine-options"></div>
     <button onclick="chefHideCuisineSelect()" class="cuisine-btn" style="background:#eee;color:#fb8c00;">Cancel</button>
   </div>
@@ -102,53 +96,73 @@
   <span id="chef-userbar-welcome"></span>
   <span class="chef-xp"></span>
   <button onclick="chefLogout()">Logout</button>
-  <button onclick="chefBattleStart()" style="margin-left:16px;background:#fb8c00;color:#fff;padding:5px 18px;border-radius:7px;cursor:pointer;border:none;">Battle</button>
 </div>
 <!-- SIDE QUESTS PANEL -->
 <div id="chef-sidequests"></div>
-<!-- BATTLE BANNER -->
-<div id="chef-battle-banner"></div>
 <!-- MAIN APP CANVAS (for cooking game/logic) -->
-<canvas id="chef-app-canvas" width="520" height="740" tabindex="0"></canvas>
+<canvas id="chef-app-canvas" width="650" height="780" tabindex="0"></canvas>
 <script>
-// --- HOMEPAGE ANIMATION ---
+// --- HOMEPAGE ADVANCED ANIMATION: Chefs, food, kitchen, avatars
 function chefAnimHomepage() {
   const c = document.getElementById('chef-home-anim');
   if (!c) return;
   const ctx = c.getContext('2d');
-  let t = 0, food = [
-    {img:"🍕",x:70,y:116,dx:1.7,dy:0.19,rot:0,dr:0.009},
-    {img:"🍣",x:270,y:130,dx:-2,dy:0.6,rot:0,dr:-0.012},
-    {img:"🥐",x:180,y:65,dx:0.9,dy:1.2,rot:0,dr:0.013},
-    {img:"🥦",x:90,y:80,dx:1.1,dy:1.0,rot:0,dr:0.012},
-    {img:"🍔",x:220,y:40,dx:1.1,dy:0.5,rot:0,dr:0.009}
+  let t = 0;
+  // Chefs and customers
+  const chefAvatars = [
+    {skin:"#f0c4a2",x:90,y:150,emoji:"👨‍🍳"},
+    {skin:"#f7e7c3",x:200,y:110,emoji:"👩‍🍳"},
+    {skin:"#bc8b4b",x:470,y:145,emoji:"🧑‍🍳"},
+    {skin:"#e3b57e",x:340,y:80,emoji:"👨🏾‍🍳"},
   ];
-  function drawChef(x,y) {
-    ctx.save();ctx.translate(x,y);
-    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,32,28,40,0,0,2*Math.PI); ctx.fill();
-    ctx.fillStyle="#fb8c00"; ctx.beginPath(); ctx.ellipse(0,62,22,16,0,0,2*Math.PI); ctx.fill();
-    ctx.beginPath(); ctx.arc(0,0,24,0,2*Math.PI); ctx.fillStyle="#f0c4a2"; ctx.fill();
-    ctx.beginPath(); ctx.arc(0,10,8,0,Math.PI,false); ctx.strokeStyle="#a44"; ctx.lineWidth=2; ctx.stroke();
-    ctx.beginPath(); ctx.arc(-8,-6,3,0,2*Math.PI); ctx.arc(8,-6,3,0,2*Math.PI); ctx.fillStyle="#333"; ctx.fill();
-    ctx.beginPath(); ctx.ellipse(0,-18,20,9,0,0,2*Math.PI); ctx.fillStyle="#fff"; ctx.fill();
-    ctx.beginPath(); ctx.ellipse(0,-33,16+Math.sin(t/21)*1.7,13,0,0,2*Math.PI); ctx.fill();
+  const customers = [
+    {emoji:"🧑‍🦱",x:60,y:210,dx:0.8},
+    {emoji:"👩‍🦰",x:500,y:205,dx:-0.7},
+    {emoji:"🧔",x:120,y:220,dx:1.1},
+    {emoji:"👩",x:420,y:225,dx:-1.2}
+  ];
+  let food = [
+    {img:"🍕",x:180,y:105,dx:1.5,dy:0.11,rot:0,dr:0.009},
+    {img:"🍣",x:370,y:90,dx:-1.7,dy:0.4,rot:0,dr:-0.012},
+    {img:"🌮",x:290,y:140,dx:0.9,dy:1.2,rot:0,dr:0.013},
+    {img:"🥟",x:220,y:120,dx:1.1,dy:1.0,rot:0,dr:0.012},
+    {img:"🍔",x:315,y:165,dx:1.1,dy:0.5,rot:0,dr:0.009}
+  ];
+  function drawChar(emoji, x, y, scale=1) {
+    ctx.save(); ctx.translate(x,y); ctx.scale(scale,scale);
+    ctx.font="2.7em serif";
+    ctx.globalAlpha=0.95;
+    ctx.fillText(emoji,0,0);
     ctx.restore();
   }
   function draw() {
-    ctx.clearRect(0,0,340,170);
-    ctx.fillStyle="#fffbe9"; ctx.fillRect(0,0,340,170);
-    ctx.fillStyle="#e0b584"; ctx.fillRect(0,140,340,40);
-    ctx.save(); ctx.shadowColor="#fb8c00"; ctx.shadowBlur=16; drawChef(100,108); ctx.restore();
+    ctx.clearRect(0,0,600,230);
+    // BG
+    ctx.fillStyle="#fffbe9"; ctx.fillRect(0,0,600,230);
+    // Kitchen counter
+    ctx.fillStyle="#e0b584"; ctx.fillRect(0,190,600,45);
+    // Chefs
+    for(let chef of chefAvatars) {
+      let bob = Math.sin(t/12 + chef.x/40)*7;
+      drawChar(chef.emoji, chef.x, chef.y+bob, 1.06+Math.sin(t/20+chef.x/100)*0.03);
+    }
+    // Customers (move left/right)
+    for(let cu of customers) {
+      drawChar(cu.emoji, cu.x, cu.y + Math.sin(t/11+cu.x/60)*6, 0.95);
+      cu.x += cu.dx;
+      if(cu.x<40 || cu.x>560) cu.dx *= -1;
+    }
+    // Animated flying food
     for(let f of food) {
       ctx.save(); ctx.translate(f.x,f.y); ctx.rotate(f.rot);
       ctx.font="2.1em serif"; ctx.globalAlpha=0.91;
       ctx.fillText(f.img,0,0); ctx.restore();
       f.x += f.dx; f.y += f.dy; f.rot += f.dr;
-      if (f.x<20||f.x>320){f.dx*=-1;}
-      if (f.y<20||f.y>150){f.dy*=-1;}
+      if (f.x<50||f.x>550){f.dx*=-1;}
+      if (f.y<50||f.y>170){f.dy*=-1;}
     }
-    ctx.font="bold 1.46em Arial"; ctx.fillStyle="#fb8c00";
-    ctx.fillText("Let's Cook!",210,56+Math.sin(t/15)*6);
+    ctx.font="bold 1.9em Arial"; ctx.fillStyle="#fb8c00";
+    ctx.fillText("World Kitchen",220,56+Math.sin(t/15)*6);
     t++; requestAnimationFrame(draw);
   }
   draw();
@@ -179,418 +193,8 @@ const CUISINES = [
       {name:"Ratatouille",emoji:"🍆",steps:["Chop veggies","Sauté","Layer","Bake","Garnish"],controls:["C","S","L","B","G"],unlock:1,timer:[7,11,9,15,6],points:50},
       {name:"Crème Brûlée",emoji:"🍮",steps:["Mix cream","Bake","Chill","Torch sugar","Serve"],controls:["M","B","C","T","Space"],unlock:2,timer:[6,14,13,6,3],points:55}
     ]
-  }
-];
-const SIDEQUESTS = [
-  {desc:"Win 2 battles!",type:"battle",goal:2,progress:0,done:false,unlock:1},
-  {desc:"Cook 5 recipes in Italian.",type:"italian5",goal:5,progress:0,done:false,unlock:0},
-  {desc:"Unlock all recipes in any cuisine!",type:"allrecipes",goal:3,progress:0,done:false,unlock:0}
-];
-
-// --- LOGIN/REGISTER/USER SYSTEM ---
-let chefCurrentUser = "";
-function chefUserKey(u){return 'chef-user-'+u;}
-function chefProgressKey(u){return 'chef-progress-'+u;}
-function chefSaveUser(u,p){localStorage.setItem(chefUserKey(u),JSON.stringify({password:p}));}
-function chefGetUser(u){try{return JSON.parse(localStorage.getItem(chefUserKey(u)));}catch(e){return null;}}
-function chefSetMsg(id,msg,ok){let el=document.getElementById(id);el.textContent=msg;el.style.color=ok?"#86ffae":"#ff6060";}
-function chefLogin(){
-  let u=document.getElementById('chef-login-user').value.trim(),p=document.getElementById('chef-login-pass').value;
-  let user=chefGetUser(u);
-  if(!u||!p)return chefSetMsg('chef-login-msg',"Enter username & password.");
-  if(!user)return chefSetMsg('chef-login-msg',"User not found.");
-  if(user.password!==p)return chefSetMsg('chef-login-msg',"Wrong password.");
-  chefCurrentUser=u;
-  document.getElementById('chef-auth').style.display="none";
-  document.getElementById('chef-userbar-welcome').textContent="Hello, "+u+"!";
-  document.getElementById('chef-userbar').style.display="";
-  chefLoadProgress();
-  chefOnLogin && chefOnLogin();
-}
-function chefRegister(){
-  let u=document.getElementById('chef-reg-user').value.trim(),p=document.getElementById('chef-reg-pass').value;
-  if(!u||!p)return chefSetMsg('chef-register-msg',"Enter username & password.",false);
-  if(chefGetUser(u))return chefSetMsg('chef-register-msg',"User already exists.",false);
-  chefSaveUser(u,p);chefSetMsg('chef-register-msg',"Registered! You can sign in now.",true);
-}
-function chefShowLogin(){
-  document.getElementById('chef-login-box').style.display="";
-  document.getElementById('chef-register-box').style.display="none";
-  chefSetMsg('chef-login-msg',"",true);chefSetMsg('chef-register-msg',"",true);
-}
-function chefShowRegister(){
-  document.getElementById('chef-login-box').style.display="none";
-  document.getElementById('chef-register-box').style.display="";
-  chefSetMsg('chef-login-msg',"",true);chefSetMsg('chef-register-msg',"",true);
-}
-function chefLogout(){
-  chefCurrentUser="";document.getElementById('chef-userbar').style.display="none";
-  document.getElementById('chef-auth').style.display="flex";chefShowLogin();chefOnLogout&&chefOnLogout();
-  chefHideCuisineSelect();
-}
-function chefGoHome(){
-  document.getElementById('chef-home').style.display="";
-  document.getElementById('chef-auth').style.display="none";
-  document.getElementById('chef-userbar').style.display="none";
-  chefOnLogout&&chefOnLogout();
-  chefHideCuisineSelect();
-}
-function chefGoToLogin(){
-  document.getElementById('chef-home').style.display="none";
-  document.getElementById('chef-auth').style.display="flex";
-  chefShowLogin();
-}
-
-// --- PROGRESS SYSTEM (per user, cuisine, xp, etc) ---
-function defaultProgress() {
-  let cuisineProg = {};
-  for (let i=0; i<CUISINES.length; ++i) cuisineProg[i] = {unlocked:1,completed:[],cookCount:0};
-  return {
-    cuisine:0, // last selected cuisine
-    cuisineProg: cuisineProg,
-    xp:0, level:1, wins:0, sidequests: []
-  };
-}
-let chefProgress = defaultProgress();
-function chefSaveProgress(){if(chefCurrentUser)localStorage.setItem(chefProgressKey(chefCurrentUser),JSON.stringify(chefProgress));}
-function chefLoadProgress(){
-  if(chefCurrentUser){
-    let p=localStorage.getItem(chefProgressKey(chefCurrentUser));
-    chefProgress=p?JSON.parse(p):defaultProgress();
-  }
-}
-function chefShowXP() {
-  document.querySelector("#chef-userbar .chef-xp").textContent = `XP: ${chefProgress.xp}   Level: ${chefProgress.level}`;
-}
-
-// --- CUISINE SELECT ---
-function chefShowCuisineSelect(cb) {
-  let cs = document.getElementById('chef-cuisine-select'), box = document.getElementById('cuisine-options');
-  cs.style.display="flex";
-  box.innerHTML = CUISINES.map((c,i)=>`<button class="cuisine-btn" onclick="chefChooseCuisine(${i})">${c.emoji} ${c.name}</button>`).join("");
-  window._cuisineCB = cb;
-}
-function chefHideCuisineSelect() {
-  document.getElementById('chef-cuisine-select').style.display="none";
-}
-function chefChooseCuisine(ix) {
-  chefProgress.cuisine = ix;
-  chefSaveProgress();
-  chefHideCuisineSelect();
-  if(window._cuisineCB) window._cuisineCB();
-}
-
-// --- SIDEQUESTS UI ---
-function chefUpdateSidequests() {
-  let panel = document.getElementById('chef-sidequests');
-  let qs = [];
-  for (let q of SIDEQUESTS) {
-    let ok = false, val = 0;
-    if (q.type=="battle") {val=chefProgress.wins; ok=val>=q.goal;}
-    if (q.type=="italian5" && chefProgress.cuisineProg[0].cookCount) {val=chefProgress.cuisineProg[0].cookCount; ok=val>=q.goal;}
-    if (q.type=="allrecipes") {
-      ok = chefProgress.cuisineProg.some(r=>r.unlocked==3);
-      val = ok?3:0;
-    }
-    qs.push(`<li>${ok?"✅":""}${q.desc} <span style="color:#888">[${val}/${q.goal}]</span></li>`);
-  }
-  if (qs.length==0) { panel.style.display="none"; return; }
-  panel.style.display="";
-  panel.innerHTML = `<h3>Side Quests</h3><ul>${qs.join("")}</ul>`;
-}
-
-// --- MAIN GAME CANVAS: Recipes, unlocks, harder controls, timers, XP ---
-function chefDrawMainApp() {
-  chefShowXP();
-  chefShowCuisineSelect(()=>chefMainGame());
-}
-function chefMainGame() {
-  chefShowXP();
-  chefUpdateSidequests();
-  let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
-  let cuisineIx = chefProgress.cuisine||0, cuisine = CUISINES[cuisineIx];
-  let unlocked = chefProgress.cuisineProg[cuisineIx].unlocked;
-  let recipeIx = 0, stepIx = 0, progress=0, cooking=false, done=false, stepStart=0, totalTime=0, msg="", timer=0;
-  let recipe = cuisine.recipes[recipeIx];
-  c.focus();
-
-  function drawRecipeBook() {
-    ctx.clearRect(0,0,c.width,c.height);
-    ctx.fillStyle="#f7e4c0"; ctx.fillRect(0,0,c.width,c.height);
-    ctx.font="bold 1.15em Arial"; ctx.fillStyle=cuisine.color;
-    ctx.fillText(`${cuisine.emoji} ${cuisine.name} Recipes:`,30,40);
-    for(let i=0;i<unlocked;i++) {
-      let y=80+i*50;
-      ctx.fillStyle=i==recipeIx?"#ffcd9e":"#fff";
-      ctx.fillRect(30,y-30,430,40);
-      ctx.font="1.15em Arial"; ctx.fillStyle=cuisine.color;
-      ctx.fillText(cuisine.recipes[i].emoji+" "+cuisine.recipes[i].name,50,y-10);
-      if((chefProgress.cuisineProg[cuisineIx].completed||[]).includes(i)) {
-        ctx.fillStyle="#32c832"; ctx.fillText("✔",410,y-10);
-      }
-    }
-    ctx.font="1.06em Arial"; ctx.fillStyle="#533c28";
-    ctx.fillText("←/→ to select, Enter to start, Esc to logout, U: Switch cuisine",36,unlocked*50+95);
-  }
-  function drawCookingStep() {
-    ctx.clearRect(0,0,c.width,c.height);
-    ctx.fillStyle="#f7e4c0"; ctx.fillRect(0,0,c.width,c.height);
-    // Chef
-    ctx.save();ctx.translate(110,590);
-    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,30,32,44,0,0,2*Math.PI); ctx.fill();
-    ctx.beginPath(); ctx.arc(0,0,32,0,2*Math.PI); ctx.fillStyle="#f0c4a2"; ctx.fill();
-    ctx.beginPath(); ctx.arc(-12,-10,5,0,2*Math.PI); ctx.arc(12,-10,5,0,2*Math.PI); ctx.fillStyle="#fff"; ctx.fill();
-    ctx.beginPath(); ctx.arc(-12,-10,2.3,0,2*Math.PI); ctx.arc(12,-10,2.3,0,2*Math.PI); ctx.fillStyle="#333"; ctx.fill();
-    ctx.beginPath(); ctx.arc(0,10,13,0,Math.PI,false); ctx.strokeStyle="#a44"; ctx.lineWidth=3; ctx.stroke();
-    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.ellipse(0,-22,25+Math.sin(progress/6)*2,10,0,0,2*Math.PI); ctx.fill();
-    ctx.restore();
-    // Pan
-    ctx.save(); ctx.translate(320,650); ctx.rotate(Math.sin(progress/13)*0.08+0.09);
-    ctx.fillStyle="#888"; ctx.beginPath(); ctx.ellipse(0,0,46,15,0,0,2*Math.PI); ctx.fill();
-    ctx.fillStyle="#333"; ctx.beginPath(); ctx.ellipse(0,0,36,7,0,0,2*Math.PI); ctx.fill();
-    ctx.restore();
-    // Food anim
-    ctx.save();ctx.translate(320,650);
-    for(let i=0;i<stepIx+1;i++){
-      let tx=Math.sin(progress/9+i)*17,ty=Math.cos(progress/8+i)*5-4;
-      ctx.font="2.1em serif";
-      ctx.globalAlpha=0.99-0.14*i;
-      ctx.fillText(recipe.emoji,tx,ty);
-    }
-    ctx.restore();
-
-    // Step/controls
-    ctx.font="1.3em Arial"; ctx.fillStyle=cuisine.color;
-    ctx.fillText(recipe.emoji+" "+recipe.name,45,90);
-    ctx.font="1.1em Arial"; ctx.fillStyle="#533c28";
-    ctx.fillText("Step "+(stepIx+1)+"/"+recipe.steps.length+": "+recipe.steps[stepIx],45,150);
-    ctx.fillStyle="#a44";
-    ctx.font="1em Arial";
-    ctx.fillText("Controls: "+recipe.controls[stepIx],45,195);
-
-    // Step progress bar
-    ctx.fillStyle="#ffe9bb"; ctx.fillRect(45,230,410,18);
-    ctx.fillStyle=cuisine.color; ctx.fillRect(45,230,410*(progress/100),18);
-    ctx.strokeStyle="#c96c1c"; ctx.strokeRect(45,230,410,18);
-
-    // Timer
-    ctx.font="1em Arial"; ctx.fillStyle="#c96c1c";
-    ctx.fillText("Time left: "+Math.max(0,Math.round(timer/60*10)/10)+"s",360,65);
-    ctx.font="0.97em Arial"; ctx.fillStyle="#b66a00";
-    ctx.fillText("Esc: quit, ←: prev, →: next, Space/Enter: action",45,720);
-    ctx.fillStyle="#32c832";
-    ctx.font="0.98em Arial";
-    ctx.fillText(msg,45,260);
-  }
-  function drawWinScreen(totalPoints, fast) {
-    ctx.clearRect(0,0,c.width,c.height);
-    ctx.fillStyle="#fffbe9"; ctx.fillRect(0,0,c.width,c.height);
-    ctx.font="1.6em Arial"; ctx.fillStyle=cuisine.color;
-    ctx.fillText("🎉 "+recipe.name+" Complete! 🎉",60,160);
-    ctx.font="1.2em Arial"; ctx.fillStyle="#533c28";
-    ctx.fillText("Points: "+totalPoints,120,220);
-    ctx.font="1.2em Arial"; ctx.fillStyle="#32c832";
-    ctx.fillText("Press Enter to return to recipes.",80,280);
-    if (fast) {
-      ctx.font="1em Arial"; ctx.fillStyle="#1abc9c";
-      ctx.fillText("Bonus: Speedrun!",100,330);
-    }
-    if (chefProgress.cuisineProg[cuisineIx].unlocked<3 && recipeIx+1==chefProgress.cuisineProg[cuisineIx].unlocked) {
-      ctx.font="1.15em Arial"; ctx.fillStyle=cuisine.color;
-      ctx.fillText("New recipe unlocked!",110,370);
-      ctx.fillText(cuisine.recipes[chefProgress.cuisineProg[cuisineIx].unlocked].emoji+" "+cuisine.recipes[chefProgress.cuisineProg[cuisineIx].unlocked].name,130,410);
-    }
-  }
-  // -- RECIPE BOOK SELECT --
-  function selectBook() {
-    drawRecipeBook();
-    c.onkeydown=function(e){
-      if(e.key=="ArrowLeft" && recipeIx>0){recipeIx--;drawRecipeBook();}
-      if(e.key=="ArrowRight" && recipeIx<unlocked-1){recipeIx++;drawRecipeBook();}
-      if(e.key=="Enter"){cooking=true;stepIx=0;progress=0;done=false;totalTime=0;msg="";stepStart=Date.now();runCooking();}
-      if(e.key=="u"||e.key=="U"){chefShowCuisineSelect(()=>{cuisineIx=chefProgress.cuisine||0;cuisine=CUISINES[cuisineIx];unlocked=chefProgress.cuisineProg[cuisineIx].unlocked;recipeIx=0;drawRecipeBook();});}
-      if(e.key=="Escape"){chefLogout();}
-    };
-  }
-  // -- COOKING STEPS --
-  function runCooking() {
-    recipe = cuisine.recipes[recipeIx]; // get latest
-    timer = recipe.timer[stepIx];
-    let controlCount = 0, stepDone = false, totalPoints = 0;
-    msg = "";
-    function tick(){
-      if (!cooking) return;
-      drawCookingStep();
-      totalTime += 1;
-      progress += 1.2 + (chefProgress.cuisineProg[cuisineIx].unlocked*0.11); // harder recipes = faster progress
-      timer -= 1/60;
-      if (timer<0) { msg="Too slow!"; cooking=false;drawWinScreen(0);c.onkeydown=function(e){if(e.key=="Enter"){selectBook();}};return;}
-      // Harder recipes: require multiple key presses, combos, or timing
-      if (!stepDone) {
-        c.onkeydown=function(e){
-          let valid=false;
-          let required = recipe.controls[stepIx].split(",");
-          if (required.length>1) {
-            if (required.includes(e.key)) valid=true;
-          } else if (e.key.toUpperCase()==required[0].toUpperCase() || e.key==required[0]) valid=true;
-          if (valid) {
-            controlCount++;
-            msg="Good!";
-            if (controlCount>=2+chefProgress.cuisineProg[cuisineIx].unlocked) { stepDone=true;}
-          } else {
-            msg="Try "+recipe.controls[stepIx];
-          }
-          if(e.key=="Escape"){cooking=false;selectBook();return;}
-          if(e.key=="ArrowLeft" && stepIx>0){stepIx--;progress=0;controlCount=0;msg="";stepDone=false;timer=recipe.timer[stepIx];}
-          if(e.key=="ArrowRight" && stepIx<recipe.steps.length-1){stepIx++;progress=0;controlCount=0;msg="";stepDone=false;timer=recipe.timer[stepIx];}
-        };
-      }
-      if (stepDone && progress>=100) {
-        stepIx++; progress=0;controlCount=0;stepDone=false;msg="";
-        if (stepIx<recipe.steps.length) timer=recipe.timer[stepIx];
-      }
-      if (stepIx>=recipe.steps.length) {
-        done=true;cooking=false;
-        // Unlock new recipe
-        if (chefProgress.cuisineProg[cuisineIx].unlocked<3 && recipeIx+1==chefProgress.cuisineProg[cuisineIx].unlocked) chefProgress.cuisineProg[cuisineIx].unlocked++;
-        if (!chefProgress.cuisineProg[cuisineIx].completed.includes(recipeIx)) chefProgress.cuisineProg[cuisineIx].completed.push(recipeIx);
-        chefProgress.cuisineProg[cuisineIx].cookCount = (chefProgress.cuisineProg[cuisineIx].cookCount||0)+1;
-        // Points/XP
-        let fast = totalTime<recipe.timer.reduce((a,b)=>a+b)*60*0.7;
-        let pts = recipe.points + (fast?10:0);
-        chefProgress.xp += pts;
-        chefProgress.level = 1+Math.floor(chefProgress.xp/120);
-        chefSaveProgress();
-        chefShowXP();
-        chefUpdateSidequests();
-        drawWinScreen(pts,fast);
-        c.onkeydown=function(e){
-          if(e.key=="Enter"){selectBook();}
-        };
-        return;
-      }
-      requestAnimationFrame(tick);
-    }
-    tick();
-  }
-  selectBook();
-}
-
-// --- BATTLE MODE ---
-function chefBattleStart() {
-  let p1 = chefCurrentUser;
-  let p2 = prompt("Enter your friend's chef username to challenge (must be registered):");
-  if (!p2 || !chefGetUser(p2)) { alert("Chef not found!"); return; }
-  chefBattleMode(p1, p2);
-}
-function chefBattleMode(user1, user2) {
-  let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
-  let cuisineIx = Math.floor(Math.random()*CUISINES.length), cuisine=CUISINES[cuisineIx];
-  let recipeIx = Math.floor(Math.random()*3), recipe=cuisine.recipes[recipeIx];
-  let stepIx=0, turn=0, done=false, times=[0,0], scores=[0,0], activeUser=user1, timer=recipe.timer[stepIx];
-  let banner = document.getElementById('chef-battle-banner');
-  function bannerShow(msg) {
-    banner.style.display="flex";
-    banner.innerHTML = `<div style="margin:auto;">${msg}</div>`;
-    setTimeout(()=>{banner.style.display="none";},1500);
-  }
-  function drawBattle(stepIx,activeUser,progress) {
-    ctx.clearRect(0,0,c.width,c.height);
-    ctx.fillStyle="#f7e4c0"; ctx.fillRect(0,0,c.width,c.height);
-    ctx.font="bold 1.3em Arial"; ctx.fillStyle=cuisine.color;
-    ctx.fillText("Battle: "+user1+" VS "+user2,40,54);
-    ctx.font="1.1em Arial"; ctx.fillStyle="#533c28";
-    ctx.fillText("Recipe: "+recipe.emoji+" "+recipe.name,40,90);
-    ctx.fillText("Step "+(stepIx+1)+"/"+recipe.steps.length+": "+recipe.steps[stepIx],40,140);
-    ctx.fillText("Chef: "+activeUser,40,190);
-    // Step bar
-    ctx.fillStyle="#ffe9bb"; ctx.fillRect(40,230,410,18);
-    ctx.fillStyle=cuisine.color; ctx.fillRect(40,230,410*(progress/100),18);
-    ctx.strokeStyle="#c96c1c"; ctx.strokeRect(40,230,410,18);
-    ctx.fillStyle="#c96c1c";
-    ctx.fillText("Time left: "+Math.max(0,Math.round(timer/60*10)/10)+"s",370,65);
-    ctx.font="0.97em Arial"; ctx.fillStyle="#b66a00";
-    ctx.fillText("Controls: "+recipe.controls[stepIx],40,270);
-    ctx.fillText("Esc: quit, Space/Enter: action",40,720);
-    ctx.font="1em Arial"; ctx.fillStyle="#32c832";
-    ctx.fillText("Total Time: "+(Math.round(times[turn]/60*10)/10)+"s",40,320);
-  }
-  let progress=0, controlCount=0, stepDone=false;
-  c.focus();
-  function battleTurn() {
-    bannerShow("Chef "+activeUser+"'s turn!");
-    progress=0; controlCount=0; stepDone=false; stepIx=0; timer=recipe.timer[stepIx]; times[turn]=0;
-    function tick() {
-      if (done) return;
-      drawBattle(stepIx,activeUser,progress);
-      times[turn] += 1;
-      progress += 1.3;
-      timer -= 1/60;
-      if (timer<0) { bannerShow("Too Slow!"); battleNext(); return;}
-      if (!stepDone) {
-        c.onkeydown=function(e){
-          let valid=false, required=recipe.controls[stepIx].split(",");
-          if (required.length>1) {
-            if (required.includes(e.key)) valid=true;
-          } else if (e.key.toUpperCase()==required[0].toUpperCase() || e.key==required[0]) valid=true;
-          if (valid) {
-            controlCount++;
-            if (controlCount>=2) { stepDone=true;}
-          }
-          if(e.key=="Escape"){done=true;chefClearMainApp();}
-        };
-      }
-      if (stepDone && progress>=100) {
-        stepIx++; progress=0;controlCount=0;stepDone=false;
-        if (stepIx<recipe.steps.length) timer=recipe.timer[stepIx];
-      }
-      if (stepIx>=recipe.steps.length) { battleNext(); return;}
-      if (!done) requestAnimationFrame(tick);
-    }
-    tick();
-  }
-  function battleNext() {
-    turn++;
-    if (turn>1) {
-      // Decide winner
-      let win=0;
-      if (times[0]<times[1]) win=0; else if (times[1]<times[0]) win=1; else win=-1;
-      bannerShow(win==-1?"It's a tie!":("Winner: "+[user1,user2][win]));
-      if (win==0&&user1==chefCurrentUser) { chefProgress.xp+=30; chefProgress.wins=(chefProgress.wins||0)+1; chefProgress.level=1+Math.floor(chefProgress.xp/120);}
-      if (win==1&&user2==chefCurrentUser) { chefProgress.xp+=30; chefProgress.wins=(chefProgress.wins||0)+1; chefProgress.level=1+Math.floor(chefProgress.xp/120);}
-      chefSaveProgress(); chefShowXP(); chefUpdateSidequests();
-      setTimeout(()=>{chefClearMainApp();},2000);
-    } else {
-      activeUser=user2;
-      battleTurn();
-    }
-  }
-  // P1 Turn
-  turn=0; activeUser=user1; battleTurn();
-}
-
-// --- CLEAR GAME CANVAS ON LOGOUT ---
-function chefClearMainApp() {
-  let c=document.getElementById('chef-app-canvas'),ctx=c.getContext('2d');
-  ctx.clearRect(0,0,c.width,c.height);
-  document.onkeydown=null;
-  document.getElementById('chef-sidequests').style.display="none";
-  document.getElementById('chef-battle-banner').style.display="none";
-}
-
-// --- INTEGRATION HOOKS ---
-window.chefOnLogin = function() {
-  chefDrawMainApp();
-};
-window.chefOnLogout = function() {
-  chefClearMainApp();
-};
-
-// --- INIT HOMEPAGE ---
-window.addEventListener('DOMContentLoaded',function(){
-  chefAnimHomepage();
-  chefGoHome();
-});
-</script>
-</body>
-</html>
+  },
+  {
+    name:"Mexican",emoji:"🌮",color:"#e67e22",
+    recipes: [
+      {name:"
