@@ -5,11 +5,10 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('chef-home').style.display = '';
     chefAnimHomepage();
     chefBindUI();
-    chefShowLoginPanel();
-  }, 1400);
+  }, 1000);
 });
 
-// --- HOMEPAGE Animation: Realistic, animated kitchen & chef with ingredients ---
+// HOMEPAGE Animation (see above)
 function chefAnimHomepage() {
   const c = document.getElementById('chef-home-anim');
   if (!c) return;
@@ -106,34 +105,87 @@ function chefAnimHomepage() {
   draw();
 }
 
-// UI binding for login/register toggling and transition
+// --- UI Logic for homepage / login / register ---
 function chefBindUI() {
   document.getElementById('home-login-btn').onclick = chefShowLoginPanel;
-  chefShowLogin(); // Default to login
-}
-function chefShowLoginPanel(){
-  document.getElementById('chef-home').style.display='none';
-  document.getElementById('chef-auth').style.display='flex';
   chefShowLogin();
 }
-function chefGoHome(){
-  document.getElementById('chef-home').style.display='';
-  document.getElementById('chef-auth').style.display='none';
-  document.getElementById('chef-userbar').style.display="none";
+// Show login overlay
+function chefShowLoginPanel() {
+  document.getElementById('chef-auth').style.display = 'flex';
+  chefShowLogin();
+}
+function chefGoHome() {
+  document.getElementById('chef-auth').style.display = 'none';
+  document.getElementById('chef-home').style.display = '';
+  document.getElementById('chef-userbar').style.display = "none";
   chefClearMainApp && chefClearMainApp();
 }
-function chefShowLogin(){
+function chefShowLogin() {
   document.getElementById('chef-login-box').classList.add('active');
   document.getElementById('chef-register-box').classList.remove('active');
-  chefSetMsg && chefSetMsg('chef-login-msg',"",true);
-  chefSetMsg && chefSetMsg('chef-register-msg',"",true);
+  chefSetMsg('chef-login-msg', "", true);
+  chefSetMsg('chef-register-msg', "", true);
 }
-function chefShowRegister(){
+function chefShowRegister() {
   document.getElementById('chef-login-box').classList.remove('active');
   document.getElementById('chef-register-box').classList.add('active');
-  chefSetMsg && chefSetMsg('chef-login-msg',"",true);
-  chefSetMsg && chefSetMsg('chef-register-msg',"",true);
+  chefSetMsg('chef-login-msg', "", true);
+  chefSetMsg('chef-register-msg', "", true);
 }
 
-// Place your full ChefMaster game logic, shop, minigames, etc. below
-// (from your latest working version - not repeated here for brevity).
+// --- Working Login/Register System (localStorage) ---
+function chefSetMsg(id, msg, ok) {
+  let el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.color = ok ? "#32b632" : "#ff6060";
+}
+function chefUserKey(u) { return 'chef-user-'+u; }
+function chefProgressKey(u) { return 'chef-progress-'+u; }
+function chefSaveUser(u, p) { localStorage.setItem(chefUserKey(u), JSON.stringify({password:p})); }
+function chefGetUser(u) { try { return JSON.parse(localStorage.getItem(chefUserKey(u))); } catch(e){ return null; } }
+function chefLogin() {
+  let u = document.getElementById('chef-login-user').value.trim(),
+      p = document.getElementById('chef-login-pass').value;
+  let user = chefGetUser(u);
+  if(!u||!p) return chefSetMsg('chef-login-msg', "Enter username & password.", false);
+  if(!user) return chefSetMsg('chef-login-msg', "User not found.", false);
+  if(user.password!==p) return chefSetMsg('chef-login-msg', "Wrong password.", false);
+  chefCurrentUser = u;
+  chefLoadProgress();
+  document.getElementById('chef-auth').style.display = 'none';
+  document.getElementById('chef-home').style.display = 'none';
+  document.getElementById('chef-userbar').style.display = '';
+  document.getElementById('chef-userbar-welcome').textContent = "Hello, " + u + "!";
+  chefShowXP && chefShowXP();
+  chefDrawMainApp && chefDrawMainApp();
+}
+function chefRegister() {
+  let u = document.getElementById('chef-reg-user').value.trim(),
+      p = document.getElementById('chef-reg-pass').value;
+  if(!u||!p) return chefSetMsg('chef-register-msg', "Enter username & password.", false);
+  if(chefGetUser(u)) return chefSetMsg('chef-register-msg', "User already exists.", false);
+  chefSaveUser(u, p);
+  chefSetMsg('chef-register-msg', "Registered! You can sign in now.", true);
+}
+let chefCurrentUser = "";
+function chefLoadProgress() {
+  // extend this to load per-user progress if needed
+}
+function chefShowXP() {
+  // extend this to show coins/xp/level
+}
+function chefDrawMainApp() {
+  // extend this to draw your main game
+}
+function chefClearMainApp() {
+  // extend this to clear main game canvas/UI
+}
+function chefShowShop(){}
+function chefShowCustomize(){}
+function chefStartMinigame(){}
+function chefLogout() {
+  chefCurrentUser = "";
+  document.getElementById('chef-userbar').style.display = "none";
+  chefGoHome();
+}
