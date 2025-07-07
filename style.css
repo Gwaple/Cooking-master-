@@ -1,6 +1,6 @@
 body {
   margin:0; padding:0;
-  background:linear-gradient(to bottom,#ffe7c9 0%,#e1bb89 100%);
+  background:linear-gradient(to bottom,#f8f6f0 0%,#f0e0c0 100%);
   font-family: 'Segoe UI', Arial, sans-serif;
 }
 #chef-loading {
@@ -19,12 +19,15 @@ body {
 .loading-title {
   margin-top:30px;font-size:1.5em;letter-spacing:1px;color:#b66a00;
 }
-#chef-home { position:fixed;z-index:11;left:0;top:0;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center; }
-#chef-home-panel {
-  background:rgba(255,243,222,0.97);border-radius:36px;padding:36px 36px;min-width:540px;max-width:950px;
-  box-shadow:0 12px 90px #c96c1c44;text-align:center;display:flex;flex-direction:column;align-items:center;
+#chef-home-panel.realistic-home {
+  background:linear-gradient(180deg,#fffaf3 40%,#f5e3b8 100%);
+  box-shadow:0 8px 60px #9e7e3c32;
+  position: relative;
+  overflow: hidden;
+  min-height: 620px;
+  padding: 36px 36px 56px 36px;
 }
-#chef-home-anim {display:block;margin:auto;margin-bottom:24px;border-radius:32px;box-shadow:0 3px 18px #eacb9e;}
+#chef-home-anim {display:block;margin:auto 0 28px 0;border-radius:32px;box-shadow:0 3px 18px #eacb9e;}
 .chef-title { color:#fb8c00;font-family:Arial Black,Arial,sans-serif;font-size:2.5em;letter-spacing:3px;margin:0 0 20px 0;text-shadow:0 4px 16px #fffbe9,0 2px 0 #c96c1c;}
 .chef-desc {color:#533c28;font-size:1.25em;margin-bottom:23px;}
 .chef-btn {
@@ -36,20 +39,11 @@ body {
 .chef-btn.alt2 {background:#fff;color:#382a26;border:1.5px solid #c96c1c;}
 .chef-btn:hover {background:#ffb300;color:#a64b00;}
 .byline {margin-top:18px;font-size:1.12em;color:#b66a00;}
-#chef-auth {
-  display:none;position:fixed;z-index:12;left:0;top:0;width:100vw;height:100vh;align-items:center;justify-content:center;background:rgba(56,42,38,0.88);
-}
-#chef-login-box,#chef-register-box {
-  background:#fffbe9;border-radius:18px;box-shadow:0 2px 24px #b66a00;padding:38px 34px 26px 34px;min-width:260px;max-width:340px;display:none;
-  margin:auto;
-}
-#chef-login-box.active,#chef-register-box.active {display:block;}
+.auth-box { display: none; }
+.auth-box.active { display: block; background:#fffbe9;border-radius:18px;box-shadow:0 2px 24px #b66a00;padding:38px 34px 26px 34px;min-width:260px;max-width:340px; margin:auto; }
 #chef-login-msg,#chef-register-msg {min-height:18px;margin-top:11px;color:#ff6060;}
 .chef-input {width:90%;margin-bottom:12px;padding:10px;font-size:1.14em;border-radius:8px;border:1px solid #c98f4a;}
-#chef-userbar {
-  position:absolute;top:10px;left:10px;z-index:10;display:none;
-  font-size:1.1em;background:rgba(255,255,255,0.95);padding:14px 33px 14px 33px;border-radius:20px;box-shadow:0 1px 8px #dabd96;
-}
+#chef-userbar { position:absolute;top:10px;left:10px;z-index:10;font-size:1.1em;background:rgba(255,255,255,0.95);padding:14px 33px 14px 33px;border-radius:20px;box-shadow:0 1px 8px #dabd96;}
 #chef-userbar .chef-xp {margin-left:18px;color:#fb8c00;font-weight:bold;}
 #chef-app-canvas {
   display:block;
@@ -70,15 +64,6 @@ body {
 .custom-selected {border:2px solid #fb8c00;border-radius:13px;}
 .player-preview {display:inline-block;background:#fffbe9;border-radius:15px;padding:18px 28px;margin-bottom:18px;}
 #chef-currency {font-size:1.15em;margin-bottom:22px;}
-#chef-sidequests {
-  position:absolute;top:30px;right:40px;z-index:10;
-  background:rgba(255,250,220,0.98);border-radius:15px;padding:23px 35px;font-size:1.09em;
-  box-shadow:0 2px 20px #fb8c00a0;min-width:240px;max-width:350px;
-  color:#7f4b00;
-  display:none;
-}
-#chef-sidequests h3 {margin:0 0 10px 0;font-size:1.17em;color:#fb8c00;}
-#chef-sidequests ul {margin:0 0 0 14px;padding:0;}
-#chef-sidequests li {margin-bottom:8px;}
 #mini-game-ui {position:absolute;left:50%;top:90px;transform:translateX(-50%);z-index:30;pointer-events:none;}
 #mini-game-ui span {font-size:1.2em;font-weight:bold;color:#d16600;background:#fffbe9cc;padding:8px 26px;border-radius:13px;box-shadow:0 2px 12px #ccc;}
+/* kitchen/chef CSS from earlier sample is now handled by canvas for realism */
