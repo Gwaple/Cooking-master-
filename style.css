@@ -1,4 +1,4 @@
- body,html {margin:0; padding:0; font-family:'Segoe UI',Arial,sans-serif; background:linear-gradient(to bottom,#f5f0e0 0%,#f2dc9a 100%);}
+body,html {margin:0; padding:0; font-family:'Segoe UI',Arial,sans-serif; background:linear-gradient(to bottom,#f5f0e0 0%,#f2dc9a 100%);}
 #chef-loading {position:fixed;z-index:100;left:0;top:0;width:100vw;height:100vh;background:#f7e6ce;display:flex;align-items:center;justify-content:center;}
 .loader-ctr {text-align:center;}
 .chef-loader {width:80px;height:80px;border-radius:50%;border:7px solid #ffb300;border-top:7px solid #fffbe9;animation:spin 1.1s linear infinite;margin:auto;box-shadow:0 2px 30px #f7be6e44;}
