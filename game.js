@@ -1,4 +1,3 @@
-// --- Loading & Homepage Logic ---
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     document.getElementById('chef-loading').style.display = 'none';
@@ -8,13 +7,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function chefInitHomepage() {
-  chefBindUI();
   chefHomepageMusic();
   chefHomepageCuisineSelect();
-}
-
-function chefBindUI() {
-  document.getElementById('home-login-btn').onclick = chefShowLoginPanel;
 }
 
 // Lo-fi music toggle
@@ -29,19 +23,12 @@ function chefHomepageMusic() {
   };
 }
 
-// Cuisine card and "Select Cuisine" both open the globe selector
+// Cuisine cards and "Select Cuisine" button trigger the globe
 function chefHomepageCuisineSelect() {
-  // Cuisine cards
   document.querySelectorAll('.cuisine-zone').forEach(zone => {
-    zone.onclick = () => {
-      chefShowHoloGlobe(zone.dataset.cuisine);
-    };
+    zone.onclick = () => chefShowHoloGlobe(zone.dataset.cuisine);
   });
-  // Button
-  document.getElementById('start-cuisine-select').onclick = () => {
-    chefShowHoloGlobe('italian'); // Opens globe, default to Italian, user can pick others
-  };
-  // Holo overlay buttons
+  document.getElementById('start-cuisine-select').onclick = () => chefShowHoloGlobe('italian');
   document.getElementById('holo-back-btn').onclick = () => {
     document.getElementById('holo-cuisine').style.display = "none";
     document.getElementById('chef-home').style.display = "";
@@ -57,7 +44,7 @@ function chefShowHoloGlobe(cuisine) {
   document.getElementById('chef-home').style.display = "none";
   const holo = document.getElementById('holo-cuisine');
   holo.style.display = "flex";
-  let cuisineData = {
+  const cuisineData = {
     italian: {label:"Italian", color:"#ffb87a", lat:37, lon:15, emoji:"🍕"},
     japanese: {label:"Japanese", color:"#aaf", lat:35, lon:139, emoji:"🍣"},
     mexican: {label:"Mexican", color:"#ff7a7a", lat:19, lon:-99, emoji:"🌮"},
@@ -66,39 +53,34 @@ function chefShowHoloGlobe(cuisine) {
     indian: {label:"Indian", color:"#fd9", lat:28, lon:77, emoji:"🍛"},
     american: {label:"American", color:"#ff9", lat:40, lon:-74, emoji:"🍔"}
   };
-  let cinfo = cuisineData[cuisine];
-  let globe = document.getElementById('holo-globe');
-  let ctx = globe.getContext('2d');
+  const cinfo = cuisineData[cuisine];
+  const globe = document.getElementById('holo-globe');
+  const ctx = globe.getContext('2d');
   let angle = 0, stopAngle = 2*Math.PI*(cinfo.lon+180)/360;
   function drawGlobe() {
     ctx.clearRect(0,0,530,530);
-    // Earth
     ctx.save();
     ctx.beginPath();
     ctx.arc(265,265,210,0,2*Math.PI);ctx.fillStyle="#3af";ctx.shadowBlur=30;ctx.shadowColor="#5ef";ctx.fill();
     ctx.shadowBlur=0;
-    // Continents (simple, stylized)
     ctx.beginPath();
     ctx.moveTo(265,265);
     ctx.arc(265,265,195,angle,angle+1.8,false);
     ctx.closePath();
     ctx.globalAlpha=0.72;
     ctx.fillStyle="#5cf8b4";ctx.fill();ctx.globalAlpha=1;
-    // Cuisine dot
     let rad = 180, theta = angle + 0.02;
     let x = 265 + rad * Math.cos(theta), y = 265 + rad * Math.sin(theta);
     ctx.beginPath();
     ctx.arc(x,y,22,0,2*Math.PI);ctx.fillStyle=cinfo.color;ctx.shadowBlur=18;ctx.shadowColor=cinfo.color;ctx.fill();ctx.shadowBlur=0;
     ctx.font = "2em serif";
     ctx.fillText(cinfo.emoji, x-16, y+12);
-    // Holo lines
     ctx.strokeStyle="#b0e5ff99";ctx.lineWidth=2;ctx.beginPath();
     for(let a=0;a<2*Math.PI;a+=Math.PI/6){
       ctx.moveTo(265,265);
       ctx.lineTo(265+210*Math.cos(a),265+210*Math.sin(a));
     }
     ctx.stroke();
-    // Holo grid
     ctx.strokeStyle="#b0e5ff33";ctx.setLineDash([7,14]);
     for(let r=80;r<210;r+=50){
       ctx.beginPath();
@@ -122,7 +104,7 @@ function chefShowHoloGlobe(cuisine) {
   spin();
 }
 
-// --- Login/Register Logic ---
+// --- Login/Register Logic (as before) ---
 function chefShowLoginPanel() {
   document.getElementById('chef-auth').style.display = 'flex';
   chefShowLogin();
