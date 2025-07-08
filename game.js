@@ -28,30 +28,27 @@ function chefHomepageMusic() {
   };
 }
 
+// Cuisine card and "Select Cuisine" both open the globe selector
 function chefHomepageCuisineSelect() {
   const zones = document.querySelectorAll('.cuisine-zone');
-  const holo = document.getElementById('holo-cuisine');
-  const globe = document.getElementById('holo-globe');
-  const label = document.querySelector('.holo-cuisine-label');
-  let selectedCuisine = null;
   zones.forEach(zone=>{
     zone.onclick = () => {
-      selectedCuisine = zone.dataset.cuisine;
-      chefShowHoloGlobe(selectedCuisine);
+      chefShowHoloGlobe(zone.dataset.cuisine);
     };
   });
   document.getElementById('start-cuisine-select').onclick = ()=>{
-    document.querySelector('.cuisine-zone').click();
+    chefShowHoloGlobe('italian'); // Opens globe, default to Italian, user can pick others
   };
   document.getElementById('holo-back-btn').onclick = ()=>{
-    holo.style.display="none";
+    document.getElementById('holo-cuisine').style.display="none";
     document.getElementById('chef-home').style.display='';
   };
   document.getElementById('holo-confirm-btn').onclick = ()=>{
-    holo.style.display="none";
+    document.getElementById('holo-cuisine').style.display="none";
     chefShowLoginPanel();
   };
 }
+
 function chefShowHoloGlobe(cuisine) {
   document.getElementById('chef-home').style.display="none";
   const holo = document.getElementById('holo-cuisine');
@@ -69,7 +66,6 @@ function chefShowHoloGlobe(cuisine) {
   let globe = document.getElementById('holo-globe');
   let ctx = globe.getContext('2d');
   let angle = 0, stopAngle = 2*Math.PI*(cinfo.lon+180)/360;
-  let anim;
   function drawGlobe() {
     ctx.clearRect(0,0,530,530);
     // Earth
@@ -117,7 +113,7 @@ function chefShowHoloGlobe(cuisine) {
     if(angle<target) requestAnimationFrame(spin);
     else document.getElementById('holo-confirm-btn').style.display='';
   }
-  label.textContent = `${cinfo.label} Cuisine`;
+  document.querySelector('.holo-cuisine-label').textContent = `${cinfo.label} Cuisine`;
   document.getElementById('holo-confirm-btn').style.display='none';
   spin();
 }
