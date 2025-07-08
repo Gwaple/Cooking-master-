@@ -17,6 +17,7 @@ function chefBindUI() {
   document.getElementById('home-login-btn').onclick = chefShowLoginPanel;
 }
 
+// Lo-fi music toggle
 function chefHomepageMusic() {
   const music = document.getElementById('lofi-music');
   const btn = document.getElementById('music-btn');
@@ -30,27 +31,30 @@ function chefHomepageMusic() {
 
 // Cuisine card and "Select Cuisine" both open the globe selector
 function chefHomepageCuisineSelect() {
-  const zones = document.querySelectorAll('.cuisine-zone');
-  zones.forEach(zone=>{
+  // Cuisine cards
+  document.querySelectorAll('.cuisine-zone').forEach(zone => {
     zone.onclick = () => {
       chefShowHoloGlobe(zone.dataset.cuisine);
     };
   });
-  document.getElementById('start-cuisine-select').onclick = ()=>{
+  // Button
+  document.getElementById('start-cuisine-select').onclick = () => {
     chefShowHoloGlobe('italian'); // Opens globe, default to Italian, user can pick others
   };
-  document.getElementById('holo-back-btn').onclick = ()=>{
-    document.getElementById('holo-cuisine').style.display="none";
-    document.getElementById('chef-home').style.display='';
+  // Holo overlay buttons
+  document.getElementById('holo-back-btn').onclick = () => {
+    document.getElementById('holo-cuisine').style.display = "none";
+    document.getElementById('chef-home').style.display = "";
   };
-  document.getElementById('holo-confirm-btn').onclick = ()=>{
-    document.getElementById('holo-cuisine').style.display="none";
+  document.getElementById('holo-confirm-btn').onclick = () => {
+    document.getElementById('holo-cuisine').style.display = "none";
     chefShowLoginPanel();
   };
 }
 
+// Hologram globe overlay and animation
 function chefShowHoloGlobe(cuisine) {
-  document.getElementById('chef-home').style.display="none";
+  document.getElementById('chef-home').style.display = "none";
   const holo = document.getElementById('holo-cuisine');
   holo.style.display = "flex";
   let cuisineData = {
