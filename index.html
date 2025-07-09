@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=1400, initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="showLogin()">
 
   <!-- Loading Screen -->
   <div id="chef-loading">
@@ -34,19 +34,6 @@
   </div>
 
   <!-- HOMEPAGE: Cozy Collage of Cuisines -->
-  <div id="homePage" style="display:none;">
-    <p>Welcome, <span id="homeUser"></span>!</p>
-    <button onclick="startGame()">Start Cooking</button>
-  </div>
-
-  <!-- GAME AREA -->
-  <div id="gameArea" style="display:none;">
-    <p>Game area will appear here.</p>
-    <button onclick="goHome()">Go Home</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <!-- HOMEPAGE: Cozy Collage Content -->
   <div id="chef-home" style="display:none;">
     <div class="collage-bg"></div>
     <div class="collage-glow"></div>
@@ -105,6 +92,19 @@
     <button class="chef-btn alt" id="holo-back-btn">Back</button>
   </div>
 
+  <!-- HOME PAGE AFTER LOGIN -->
+  <div id="homePage" style="display:none;">
+    <p>Welcome, <span id="homeUser"></span>!</p>
+    <button onclick="startGame()">Start Cooking</button>
+  </div>
+
+  <!-- GAME AREA -->
+  <div id="gameArea" style="display:none;">
+    <p>Game area will appear here.</p>
+    <button onclick="goHome()">Go Home</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
   <!-- USERBAR + GAME UI -->
   <div id="chef-userbar" style="display:none;">
     <span id="chef-userbar-welcome"></span>
@@ -119,14 +119,18 @@
   <div id="mini-game-ui"></div>
   <audio id="lofi-music" src="https://cdn.pixabay.com/audio/2023/03/08/audio_12b1f4d6ce.mp3" loop></audio>
 
-  <!-- Inline JavaScript -->
+  <!-- JavaScript -->
   <script>
     let currentUser = "";
     let progressStats = {};
 
     function showLogin() {
+      document.getElementById("authArea").style.display = "";
       document.getElementById("loginBox").style.display = "";
       document.getElementById("registerBox").style.display = "none";
+      document.getElementById("chef-home").style.display = "none";
+      document.getElementById("homePage").style.display = "none";
+      document.getElementById("gameArea").style.display = "none";
     }
 
     function showRegister() {
@@ -135,17 +139,16 @@
     }
 
     function login() {
-      currentUser = document.getElementById("loginUser").value || "Gardener";
+      currentUser = document.getElementById("loginUser").value || "Guest";
       progressStats = loadProgress(currentUser);
       updateProgressStats();
       document.getElementById("authArea").style.display = "none";
       document.getElementById("homePage").style.display = "";
-      document.getElementById("gameArea").style.display = "none";
       document.getElementById("homeUser").textContent = currentUser;
     }
 
     function register() {
-      showLogin(); // Could add save logic here later
+      showLogin(); // You can add real register logic here
     }
 
     function startGame() {
@@ -155,33 +158,32 @@
     }
 
     function goHome() {
-      document.getElementById("homePage").style.display = "";
       document.getElementById("gameArea").style.display = "none";
+      document.getElementById("homePage").style.display = "";
     }
 
     function logout() {
+      currentUser = "";
       document.getElementById("authArea").style.display = "";
       document.getElementById("homePage").style.display = "none";
       document.getElementById("gameArea").style.display = "none";
-      currentUser = "";
     }
 
-    // Placeholder functions for your game
+    // Dummy placeholder functions
     function loadProgress(user) {
-      return {}; // Stub: Load user data here
+      return {}; // Stub for loading user progress
     }
 
     function updateProgressStats() {
-      console.log("Updating stats for", currentUser);
+      console.log("Stats updated for:", currentUser);
     }
 
     function showSeedSelection() {
-      console.log("Showing seed selection...");
+      console.log("Seed selection shown");
     }
   </script>
 
-  <!-- External JS -->
+  <!-- Your game logic -->
   <script src="game.js"></script>
 </body>
 </html>
-
