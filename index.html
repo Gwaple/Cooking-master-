@@ -5,28 +5,96 @@
   <title>ChefMaster: Cozy Cooking World</title>
   <meta name="viewport" content="width=1400, initial-scale=1">
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #fff4e6, #ffe8d6);
+    }
+
+    /* Cozy Login/Register Styling */
+    #authArea {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fffaf3;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      z-index: 9999;
+      width: 300px;
+      text-align: center;
+    }
+
+    #authArea h2 {
+      margin-bottom: 1rem;
+      color: #d2691e;
+    }
+
+    #authArea input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    #authArea button {
+      background-color: #ffa94d;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      font-weight: bold;
+    }
+
+    #authArea button:hover {
+      background-color: #ff922b;
+    }
+
+    #authArea p {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    #authArea a {
+      color: #d2691e;
+      text-decoration: none;
+    }
+
+    #authArea a:hover {
+      text-decoration: underline;
+    }
+
+    /* Hide everything else initially */
+    #chef-home,
+    #homePage,
+    #gameArea,
+    #chef-userbar,
+    #holo-cuisine {
+      display: none;
+    }
+  </style>
 </head>
+
 <body onload="showLogin()">
 
-  <!-- Loading Screen -->
-  <div id="chef-loading">
-    <div class="loader-ctr">
-      <div class="chef-loader"></div>
-      <div class="loading-title">Loading ChefMaster...</div>
-    </div>
-  </div>
-
-  <!-- AUTH AREA (Login/Register) -->
+  <!-- Login / Register -->
   <div id="authArea">
     <div id="loginBox">
-      <h2>Login</h2>
-      <input type="text" id="loginUser" placeholder="Enter username">
+      <h2>Welcome Back, Chef!</h2>
+      <input type="text" id="loginUser" placeholder="Enter your name">
       <button onclick="login()">Login</button>
-      <p>New user? <a href="#" onclick="showRegister()">Register</a></p>
+      <p>New here? <a href="#" onclick="showRegister()">Register</a></p>
     </div>
 
     <div id="registerBox" style="display:none;">
-      <h2>Register</h2>
+      <h2>Create Your Chef Profile</h2>
       <input type="text" id="registerUser" placeholder="Choose a username">
       <button onclick="register()">Register</button>
       <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
@@ -34,10 +102,11 @@
   </div>
 
   <!-- HOMEPAGE: Cozy Collage of Cuisines -->
-  <div id="chef-home" style="display:none;">
+  <div id="chef-home">
     <div class="collage-bg"></div>
     <div class="collage-glow"></div>
     <div class="collage-bokeh"></div>
+
     <div id="collage-content">
       <div class="chef-mascot">
         <div class="chef-mascot-hat">👨‍🍳</div>
@@ -76,37 +145,38 @@
           <span class="cuisine-emoji">🍔🍟🌭🥓🥞🥤</span>
         </div>
       </div>
+
       <div class="homepage-logo">CHEFMASTER</div>
       <button class="chef-btn start-btn" id="start-cuisine-select">Select Cuisine</button>
     </div>
   </div>
 
-  <!-- HOLOGRAM OVERLAY FOR CUISINE SELECT -->
-  <div id="holo-cuisine" style="display:none;">
+  <!-- HOLOGRAM OVERLAY -->
+  <div id="holo-cuisine">
     <div class="holo-bg"></div>
     <div id="holo-globe-ctr">
       <canvas id="holo-globe" width="530" height="530"></canvas>
       <div class="holo-cuisine-label"></div>
     </div>
-    <button class="chef-btn" id="holo-confirm-btn" style="display:none;">Cook in this Cuisine</button>
+    <button class="chef-btn" id="holo-confirm-btn">Cook in this Cuisine</button>
     <button class="chef-btn alt" id="holo-back-btn">Back</button>
   </div>
 
-  <!-- HOME PAGE AFTER LOGIN -->
-  <div id="homePage" style="display:none;">
+  <!-- HOME PAGE after Login -->
+  <div id="homePage">
     <p>Welcome, <span id="homeUser"></span>!</p>
     <button onclick="startGame()">Start Cooking</button>
   </div>
 
   <!-- GAME AREA -->
-  <div id="gameArea" style="display:none;">
+  <div id="gameArea">
     <p>Game area will appear here.</p>
     <button onclick="goHome()">Go Home</button>
     <button onclick="logout()">Logout</button>
   </div>
 
-  <!-- USERBAR + GAME UI -->
-  <div id="chef-userbar" style="display:none;">
+  <!-- USERBAR -->
+  <div id="chef-userbar">
     <span id="chef-userbar-welcome"></span>
     <span class="chef-xp"></span>
     <button onclick="chefShowShop()">Shop</button>
@@ -115,6 +185,7 @@
     <button onclick="logout()">Logout</button>
   </div>
 
+  <!-- Game Canvas + Music -->
   <canvas id="chef-app-canvas" width="1120" height="700" tabindex="0"></canvas>
   <div id="mini-game-ui"></div>
   <audio id="lofi-music" src="https://cdn.pixabay.com/audio/2023/03/08/audio_12b1f4d6ce.mp3" loop></audio>
@@ -122,12 +193,13 @@
   <!-- JavaScript -->
   <script>
     let currentUser = "";
-    let progressStats = {};
 
     function showLogin() {
       document.getElementById("authArea").style.display = "";
       document.getElementById("loginBox").style.display = "";
       document.getElementById("registerBox").style.display = "none";
+
+      // Hide other areas
       document.getElementById("chef-home").style.display = "none";
       document.getElementById("homePage").style.display = "none";
       document.getElementById("gameArea").style.display = "none";
@@ -140,50 +212,9 @@
 
     function login() {
       currentUser = document.getElementById("loginUser").value || "Guest";
-      progressStats = loadProgress(currentUser);
-      updateProgressStats();
       document.getElementById("authArea").style.display = "none";
-      document.getElementById("homePage").style.display = "";
       document.getElementById("homeUser").textContent = currentUser;
-    }
+      document.getElementById("homePage").style.display
 
-    function register() {
-      showLogin(); // You can add real register logic here
-    }
 
-    function startGame() {
-      document.getElementById("homePage").style.display = "none";
-      document.getElementById("gameArea").style.display = "";
-      showSeedSelection();
-    }
-
-    function goHome() {
-      document.getElementById("gameArea").style.display = "none";
-      document.getElementById("homePage").style.display = "";
-    }
-
-    function logout() {
-      currentUser = "";
-      document.getElementById("authArea").style.display = "";
-      document.getElementById("homePage").style.display = "none";
-      document.getElementById("gameArea").style.display = "none";
-    }
-
-    // Dummy placeholder functions
-    function loadProgress(user) {
-      return {}; // Stub for loading user progress
-    }
-
-    function updateProgressStats() {
-      console.log("Stats updated for:", currentUser);
-    }
-
-    function showSeedSelection() {
-      console.log("Seed selection shown");
-    }
-  </script>
-
-  <!-- Your game logic -->
-  <script src="game.js"></script>
-</body>
-</html>
+ 
