@@ -3,132 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <title>ChefMaster: Cozy Cooking World</title>
-  <meta name="viewport" content="width=1400, initial-scale=1">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to bottom right, #fff4e6, #ffe8d6);
-    }
-
-    #chef-auth {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #fffaf3;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      z-index: 9999;
-      width: 300px;
-      text-align: center;
-      display: none;
-    }
-
-    #chef-auth h2 {
-      margin-bottom: 1rem;
-      color: #d2691e;
-    }
-
-    #chef-auth input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
-    #chef-auth button {
-      background-color: #ffa94d;
-      border: none;
-      padding: 10px 20px;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      font-weight: bold;
-    }
-
-    #chef-auth button:hover {
-      background-color: #ff922b;
-    }
-
-    #chef-auth p {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-    }
-
-    #chef-auth a {
-      color: #d2691e;
-      text-decoration: none;
-    }
-
-    #chef-auth a:hover {
-      text-decoration: underline;
-    }
-
-    .auth-box {
-      display: none;
-    }
-
-    .auth-box.active {
-      display: block;
-    }
-
-    #chef-home,
-    #holo-cuisine,
-    #chef-userbar {
-      display: none;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="showLogin()">
 
-  <!-- Login / Register -->
-  <div id="chef-auth">
-    <div id="chef-login-box" class="auth-box active">
+  <!-- Login/Register -->
+  <div id="authArea">
+    <div id="loginBox">
       <h2>Welcome Back, Chef!</h2>
-      <input type="text" id="chef-login-user" placeholder="Username">
-      <input type="password" id="chef-login-pass" placeholder="Password">
-      <button onclick="chefLogin()">Login</button>
-      <p id="chef-login-msg"></p>
-      <p>New here? <a href="#" onclick="chefShowRegister()">Register</a></p>
+      <input type="text" id="loginUser" placeholder="Enter your name">
+      <button onclick="login()">Login</button>
+      <p>New here? <a href="#" onclick="showRegister()">Register</a></p>
     </div>
-
-    <div id="chef-register-box" class="auth-box">
+    <div id="registerBox" style="display:none;">
       <h2>Create Your Chef Profile</h2>
-      <input type="text" id="chef-reg-user" placeholder="Choose a username">
-      <input type="password" id="chef-reg-pass" placeholder="Choose a password">
-      <button onclick="chefRegister()">Register</button>
-      <p id="chef-register-msg"></p>
-      <p>Already have an account? <a href="#" onclick="chefShowLogin()">Login</a></p>
+      <input type="text" id="registerUser" placeholder="Choose a username">
+      <button onclick="register()">Register</button>
+      <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
     </div>
   </div>
 
-  <!-- HOMEPAGE -->
+  <!-- Homepage Collage with Mascot and Cuisine Cards -->
   <div id="chef-home">
-    <div class="chef-mascot">
-      <div class="chef-mascot-hat">👨‍🍳</div>
-      <div class="chef-mascot-face">😊</div>
-      <div class="music-bubble" id="music-btn" title="Toggle lo-fi music">🎵</div>
+    <div class="collage-bg"></div>
+    <div id="collage-content">
+      <div class="chef-mascot">
+        <div class="chef-mascot-hat">👨‍🍳</div>
+        <div class="chef-mascot-face">😊</div>
+        <div class="music-bubble" id="music-btn" title="Toggle lo-fi music">🎵</div>
+      </div>
+      <div class="cuisine-collage">
+        <div class="cuisine-zone" data-cuisine="italian">🍕 Italian</div>
+        <div class="cuisine-zone" data-cuisine="japanese">🍣 Japanese</div>
+        <div class="cuisine-zone" data-cuisine="mexican">🌮 Mexican</div>
+        <div class="cuisine-zone" data-cuisine="french">🥐 French</div>
+        <div class="cuisine-zone" data-cuisine="chinese">🥟 Chinese</div>
+        <div class="cuisine-zone" data-cuisine="indian">🍛 Indian</div>
+        <div class="cuisine-zone" data-cuisine="american">🍔 American</div>
+      </div>
+      <button id="start-cuisine-select">Select Cuisine</button>
     </div>
-
-    <div class="cuisine-collage">
-      <div class="cuisine-zone" data-cuisine="italian">Italian 🍕</div>
-      <div class="cuisine-zone" data-cuisine="japanese">Japanese 🍣</div>
-      <div class="cuisine-zone" data-cuisine="mexican">Mexican 🌮</div>
-      <div class="cuisine-zone" data-cuisine="french">French 🥐</div>
-      <div class="cuisine-zone" data-cuisine="chinese">Chinese 🥟</div>
-      <div class="cuisine-zone" data-cuisine="indian">Indian 🍛</div>
-      <div class="cuisine-zone" data-cuisine="american">American 🍔</div>
-    </div>
-
-    <button class="chef-btn" id="start-cuisine-select">Select Cuisine</button>
   </div>
 
-  <!-- Hologram -->
+  <!-- Hologram Globe Overlay -->
   <div id="holo-cuisine">
     <canvas id="holo-globe" width="530" height="530"></canvas>
     <div class="holo-cuisine-label"></div>
@@ -136,144 +54,26 @@
     <button id="holo-back-btn">Back</button>
   </div>
 
-  <!-- User bar -->
-  <div id="chef-userbar">
-    <span id="chef-userbar-welcome"></span>
-    <button onclick="chefShowShop()">Shop</button>
-    <button onclick="chefShowCustomize()">Customize</button>
-    <button onclick="chefStartMinigame()">Cook!</button>
-    <button onclick="chefLogout()">Logout</button>
+  <!-- Stats & Quest Panel -->
+  <div id="chef-panel">
+    <div id="chef-stats">
+      XP: <span id="stats-xp">0</span> |
+      Coins: <span id="stats-coins">0</span> |
+      Level: <span id="stats-level">1</span>
+    </div>
+    <div id="chef-quests">
+      <h3>🍽️ Side Quests</h3>
+      <div class="quest-list"></div>
+    </div>
   </div>
 
-  <!-- Game canvas -->
+  <!-- Game Canvas and UI -->
   <canvas id="chef-app-canvas" width="1120" height="700" tabindex="0"></canvas>
+  <div id="mini-game-ui"></div>
   <audio id="lofi-music" src="https://cdn.pixabay.com/audio/2023/03/08/audio_12b1f4d6ce.mp3" loop></audio>
 
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('chef-auth').style.display = 'flex';
-    });
-
-    function chefShowLoginPanel() {
-      document.getElementById('chef-auth').style.display = 'flex';
-      chefShowLogin();
-    }
-
-    function chefShowLogin() {
-      document.getElementById('chef-login-box').classList.add('active');
-      document.getElementById('chef-register-box').classList.remove('active');
-      chefSetMsg('chef-login-msg', "", true);
-      chefSetMsg('chef-register-msg', "", true);
-    }
-
-    function chefShowRegister() {
-      document.getElementById('chef-login-box').classList.remove('active');
-      document.getElementById('chef-register-box').classList.add('active');
-      chefSetMsg('chef-login-msg', "", true);
-      chefSetMsg('chef-register-msg', "", true);
-    }
-
-    function chefSetMsg(id, msg, ok) {
-      let el = document.getElementById(id);
-      el.textContent = msg;
-      el.style.color = ok ? "#32b632" : "#ff6060";
-    }
-
-    function chefUserKey(u) { return 'chef-user-'+u; }
-    function chefSaveUser(u, p) { localStorage.setItem(chefUserKey(u), JSON.stringify({password:p})); }
-    function chefGetUser(u) {
-      try {
-        return JSON.parse(localStorage.getItem(chefUserKey(u)));
-      } catch(e) {
-        console.error("localStorage error", e);
-        return null;
-      }
-    }
-
-    let chefCurrentUser = "";
-
-    function chefLogin() {
-      let u = document.getElementById('chef-login-user').value.trim();
-      let p = document.getElementById('chef-login-pass').value;
-      if (!u || !p) return chefSetMsg('chef-login-msg', "Enter username & password.", false);
-      let user = chefGetUser(u);
-      if (!user) return chefSetMsg('chef-login-msg', "User not found.", false);
-      if (user.password !== p) return chefSetMsg('chef-login-msg', "Wrong password.", false);
-      chefCurrentUser = u;
-      document.getElementById('chef-auth').style.display = 'none';
-      document.getElementById('chef-home').style.display = '';
-      document.getElementById('chef-userbar').style.display = '';
-      document.getElementById('chef-userbar-welcome').textContent = `Hello, ${u}!`;
-      chefInitHomepage();
-    }
-
-    function chefRegister() {
-      let u = document.getElementById('chef-reg-user').value.trim();
-      let p = document.getElementById('chef-reg-pass').value;
-      if (!u || !p) return chefSetMsg('chef-register-msg', "Enter username & password.", false);
-      if (chefGetUser(u)) return chefSetMsg('chef-register-msg', "User already exists.", false);
-      chefSaveUser(u, p);
-      chefSetMsg('chef-register-msg', "Registered! You can sign in now.", true);
-    }
-
-    function chefLogout() {
-      chefCurrentUser = "";
-      document.getElementById('chef-userbar').style.display = "none";
-      document.getElementById('chef-home').style.display = "none";
-      document.getElementById('chef-auth').style.display = "flex";
-      chefShowLogin();
-    }
-
-    function chefInitHomepage() {
-      document.getElementById('music-btn').onclick = () => {
-        let audio = document.getElementById('lofi-music');
-        if (audio.paused) {
-          audio.play();
-        } else {
-          audio.pause();
-        }
-      };
-
-      document.getElementById('start-cuisine-select').onclick = () => {
-        document.getElementById('chef-home').style.display = 'none';
-        document.getElementById('holo-cuisine').style.display = 'block';
-        chefInitGlobe();
-      };
-
-      document.getElementById('holo-back-btn').onclick = () => {
-        document.getElementById('holo-cuisine').style.display = 'none';
-        document.getElementById('chef-home').style.display = 'block';
-      };
-    }
-
-    function chefInitGlobe() {
-      let canvas = document.getElementById('holo-globe');
-      let ctx = canvas.getContext('2d');
-      let angle = 0;
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.translate(canvas.width/2, canvas.height/2);
-        ctx.rotate(angle);
-        ctx.beginPath();
-        ctx.arc(0, 0, 100, 0, 2 * Math.PI);
-        ctx.strokeStyle = '#ff922b';
-        ctx.lineWidth = 4;
-        ctx.stroke();
-        ctx.restore();
-        angle += 0.01;
-        requestAnimationFrame(draw);
-      }
-      draw();
-    }
-
-    // Placeholder functions
-    function chefShowShop() { alert("Shop coming soon!"); }
-    function chefShowCustomize() { alert("Customize your chef soon!"); }
-    function chefStartMinigame() { alert("Cooking game starting..."); }
-  </script>
+  <!-- Load Game Logic -->
+  <script src="game.js"></script>
 </body>
 </html>
 
-
- 
